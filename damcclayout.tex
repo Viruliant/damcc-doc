@@ -1,0 +1,67 @@
+% !TEX TS-program = xelatex
+% Copyright 2023. This work is licensed under a CC BY NC ND 4.0 license.
+\input{roydefault5.cls}
+\usepackage{multirow} % <=======================================
+\usepackage{longtable}
+\usepackage{booktabs}
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+%\usepackage{blkarray}
+%\usepackage{adjustbox}
+% ...
+\makeatletter
+%\author{\copyright Roy Pfund\thanks{e-mail: r0ypfund@gm41l.c0m} ~\textcolor{blue}{\href{https://creativecommons.org/licenses/by-nc-sa/4.0/}{(CC BY-NC-SA 4.0)}} 2022
+%\author{\copyright Roy Pfund\thanks{e-mail: r0ypfund@gm41l.c0m} ~(CC BY-NC-SA 4.0) 2022\\
+%	\url{https://creativecommons.org/licenses/by-nc-sa/4.0/}
+\title{DAMCC}\let\Title\@title
+\author{\copyright Roy Pfund~\textcolor{blue}{\href{https://creativecommons.org/licenses/by-nc-nd/4.0/}{(CC BY-NC-ND 4.0)}} 2022} \let\Author\@author
+%\date{} % Activate to display a given date or no date (if empty), otherwise the current date is printed
+\date{\today}           \let\Date\@date
+\makeatother
+
+\bibliographystyle{plainnat}
+\pagestyle{fancy}
+%\renewcommand{\headheight}{18mm}
+%\renewcommand{\footruleskip}{10pt}
+%\renewcommand{\headrulewidth}{2pt}
+
+\fancyhead{}\fancyfoot{}% Clear all headers and footers (see also \fancyhf{})
+%\fancyhf[locations]{content}%(Left, Center, Right)(Header, Footer)(Odd Even)
+\fancyhf[LHO,LHE]{\textbf{\Title} \textcolor{gray}{$\quad$p. \thepage}}
+%\fancyhf[CHO,CHE]{\Date}
+\fancyhf[RHO,RHE]{\textbf{\Author}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\headrulewidth}{0.4pt}
+%\fancyhf[LFO,LFE,CFO,CFE,RFO,RFE]{}
+\fancypagestyle{nofooter}{%
+  \fancyfoot{}%
+}
+
+%\makeatletter
+%\let\oldlt\longtable
+%\let\endoldlt\endlongtable
+%\def\longtable{\@ifnextchar[\longtable@i \longtable@ii}
+%\def\longtable@i[#1]{\begin{figure}[t]
+%\onecolumn
+%\begin{minipage}{0.5\textwidth}
+%\oldlt[#1]
+%}
+%\def\longtable@ii{\begin{figure}[t]
+%\onecolumn
+%\begin{minipage}{0.5\textwidth}
+%\oldlt
+%}
+%\def\endlongtable{\endoldlt
+%\end{minipage}
+%\twocolumn
+%\end{figure}}
+%\makeatother
+
+%WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+\begin{document}
+%\begin{multicols}{2}
+% pandoc --from=markdown --to=latex --output=damcc.tex damcc.md
+\input{damcc.tex}
+%\end{multicols}
+\end{document}
