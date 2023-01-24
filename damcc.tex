@@ -45,7 +45,7 @@ Rarely is a language as well put together as \texttt{C}, Mixing
 assembly parts of the \texttt{C} code. A lot of compromises were made to
 do this; For all intents and purposes \texttt{C} is not so much a
 language so much as it is basically assembly and just as dangerous.
-\texttt{C} is a notoriously ``Dumb'' language, in that it will do what
+\texttt{C} is a notoriously ``Dumb'' language, in that it will do
 exactly what \textbf{you} tell it to do; Including the set of all known
 computer \emph{bugs}: memory leaks, stack overflows, disk destruction,
 or worse.
@@ -330,6 +330,11 @@ need to:
   create any variables -- the c code will be requesting memory for it's
   own variables and pointers the appropriate function calls
   (\texttt{malloc()} etc.).
+\item
+  destroy any variables -- the c code should be explicitly calling
+  \texttt{free()} on any variables that are to cease existance after
+  they fall out of scope including global variables at the end of the
+  \texttt{main()} scope.
 \end{itemize}
 
 \hypertarget{stage2---on-the-shoulders-of-giants}{%

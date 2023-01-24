@@ -33,7 +33,7 @@ assembly can often be as simple as not translating the assembly parts
 of the `C` code. A lot of compromises were made to do this; For all 
 intents and purposes `C` is not so much a language so much as it is 
 basically assembly and just as dangerous. `C` is a notoriously "Dumb" 
-language, in that it will do what exactly what **you** tell it to do; 
+language, in that it will do exactly what **you** tell it to do; 
 Including the set of all known computer *bugs*: memory leaks, stack 
 overflows, disk destruction, or worse.
 
@@ -272,6 +272,9 @@ no need to:
  * create any variables -- the c code will be requesting memory for 
 it's own variables and pointers the appropriate function calls 
 (`malloc()` etc.).
+ * destroy any variables -- the c code should be explicitly calling `free()` on
+any variables that are to cease existance after they fall out of scope
+including global variables at the end of the `main()` scope.
 
 ### Stage2 - on the shoulders of giants
 58:57 - 60:54 into [Cliff Click - HotSpot "C2" JIT](https://youtu.be/9epgZ-e6DUU)
