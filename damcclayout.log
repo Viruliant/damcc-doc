@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (Web2C 2021/nixos.org) (preloaded format=xelatex 1980.1.1)  18 JAN 2023 17:09
+This is XeTeX, Version 3.141592653-2.6-0.999993 (Web2C 2021/nixos.org) (preloaded format=xelatex 1980.1.1)  24 JAN 2023 12:13
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1659,37 +1659,33 @@ LaTeX Font Warning: Font shape `TU/NotoSans-Light.ttf(0)/b/n' undefined
 3.
 
 
-Overfull \hbox (6.88643pt too wide) in paragraph at lines 19--23
+Overfull \hbox (6.88643pt too wide) in paragraph at lines 26--31
 [] []\TU/XITS(0)/b/n/10 Architecture–[] \TU/XITS(0)/m/n/10 Different cpus need 
 different executables if they use different instruction-
  []
 
 LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <10> not available
-(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 33.
-
-Package hyperref Warning: Difference (2) between bookmark levels is greater 
-(hyperref)                than one, level fixed on input line 46.
-
+(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 41.
 LaTeX Font Info:    Font shape `TU/XITSMath-Regular(2)/m/n' will be
-(Font)              scaled to size 10.00107pt on input line 76.
+(Font)              scaled to size 10.00107pt on input line 84.
 LaTeX Font Info:    Font shape `TU/XITSMath-Regular(2)/m/n' will be
-(Font)              scaled to size 7.5008pt on input line 76.
+(Font)              scaled to size 7.5008pt on input line 84.
 LaTeX Font Info:    Font shape `TU/XITSMath-Regular(2)/m/n' will be
-(Font)              scaled to size 6.00064pt on input line 76.
+(Font)              scaled to size 6.00064pt on input line 84.
 LaTeX Font Info:    Font shape `TU/XITSMath-Regular(3)/m/n' will be
-(Font)              scaled to size 9.99893pt on input line 76.
+(Font)              scaled to size 9.99893pt on input line 84.
 LaTeX Font Info:    Font shape `TU/XITSMath-Regular(3)/m/n' will be
-(Font)              scaled to size 7.49919pt on input line 76.
+(Font)              scaled to size 7.49919pt on input line 84.
 LaTeX Font Info:    Font shape `TU/XITSMath-Regular(3)/m/n' will be
-(Font)              scaled to size 5.99936pt on input line 76.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 76.
+(Font)              scaled to size 5.99936pt on input line 84.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 84.
 
 
 (/nix/store/7aplrd66k8qy4j674y85qq9adx5hnv6q-texlive-combined-full-2021-final/s
 hare/texmf/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 76.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 84.
 
 
 (/nix/store/7aplrd66k8qy4j674y85qq9adx5hnv6q-texlive-combined-full-2021-final/s
@@ -1697,7 +1693,7 @@ hare/texmf/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Trying to load font information for U+esvect on input line 
-76.
+84.
 
 (/nix/store/7aplrd66k8qy4j674y85qq9adx5hnv6q-texlive-combined-full-2021-final/s
 hare/texmf/tex/latex/esvect/uesvect.fd
@@ -1705,75 +1701,75 @@ File: uesvect.fd
 )
 
 LaTeX Font Warning: Font shape `U/esvect/m/n' in size <7.5> not available
-(Font)              size <7> substituted on input line 76.
+(Font)              size <7> substituted on input line 84.
 
 [1
 
-] [2] [3]
+] [2] [3] [4]
 LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <14.4> not available
-(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 229.
- [4] [5]
-Overfull \hbox (220.23972pt too wide) in paragraph at lines 358--361
+(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 298.
+ [5] [6]
+Overfull \hbox (220.23972pt too wide) in paragraph at lines 412--415
 \TU/XITS(0)/m/n/10 basically just home theater setups CS361 Chris Kanich https:
 //youtu.be/eQ0KOT_J8Sk?list=PLhy9gU5W1fvUND_5mdpbNVHC1WCIaABbP 
  []
 
-[6]
-Overfull \hbox (88.62636pt too wide) in paragraph at lines 436--436
+[7]
+Overfull \hbox (88.62636pt too wide) in paragraph at lines 479--479
 []\TU/lmtt/m/n/10 interface ThrowListener { public void Catch(); } //Declaratio
 n event interface type[] 
  []
 
 
-Overfull \hbox (30.87636pt too wide) in paragraph at lines 436--436
+Overfull \hbox (30.87636pt too wide) in paragraph at lines 479--479
 []\TU/lmtt/m/n/10 // OR import of the interface, OR declared somewhere else in 
 the package[] 
  []
 
 
-Overfull \hbox (72.87636pt too wide) in paragraph at lines 436--436
+Overfull \hbox (72.87636pt too wide) in paragraph at lines 479--479
 []\TU/lmtt/m/n/10 /*___________________________________________________________
 __*/class Thrower {[] 
  []
 
 
-Overfull \hbox (41.37636pt too wide) in paragraph at lines 436--436
+Overfull \hbox (41.37636pt too wide) in paragraph at lines 479--479
 []\TU/lmtt/m/n/10 //list of catchers & corresponding function to add/remove the
 m in the list[] 
  []
 
 
-Overfull \hbox (4.62636pt too wide) in paragraph at lines 436--436
+Overfull \hbox (4.62636pt too wide) in paragraph at lines 479--479
 []    \TU/lmtt/m/n/10 List<ThrowListener> listeners = new ArrayList<ThrowListen
 er>();[] 
  []
 
 
-Overfull \hbox (62.37636pt too wide) in paragraph at lines 436--436
+Overfull \hbox (62.37636pt too wide) in paragraph at lines 479--479
 []    \TU/lmtt/m/n/10 public void addThrowListener(ThrowListener toAdd){ listen
 ers.add(toAdd); }[] 
  []
 
 
-Overfull \hbox (46.62636pt too wide) in paragraph at lines 436--436
+Overfull \hbox (46.62636pt too wide) in paragraph at lines 479--479
 []        \TU/lmtt/m/n/10 public void Throw(){ for (ThrowListener hl : listener
 s) hl.Catch();[] 
  []
 
 
-Overfull \hbox (104.37636pt too wide) in paragraph at lines 436--436
+Overfull \hbox (104.37636pt too wide) in paragraph at lines 479--479
 []\TU/lmtt/m/n/10 ////Optional: 2 things to send events to a class that is a me
 mber of the current class[] 
  []
 
 
-Overfull \hbox (72.87636pt too wide) in paragraph at lines 436--436
+Overfull \hbox (72.87636pt too wide) in paragraph at lines 479--479
 []\TU/lmtt/m/n/10 /*___________________________________________________________
 ____*/class Catcher[] 
  []
 
-[7]
-Overfull \hbox (130.62636pt too wide) in paragraph at lines 436--436
+
+Overfull \hbox (130.62636pt too wide) in paragraph at lines 479--479
 []\TU/lmtt/m/n/10 ////Optional: 2 things to receive events from a class that is
  a member of the current class[] 
  []
@@ -1786,16 +1782,25 @@ LaTeX Font Warning: Size substitutions with differences
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-Package rerunfilecheck Info: File `damcclayout.out' has not changed.
-(rerunfilecheck)             Checksum: 6B3ECC98CCDC789CD51814453342C35D;1019.
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+
+Package rerunfilecheck Warning: File `damcclayout.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `damcclayout.out':
+(rerunfilecheck)             Before: 0C5EB6BA16398BE866FE376A67D20978;1404
+(rerunfilecheck)             After:  153DB5C44D313112378054B6D606D286;1307.
  ) 
 Here is how much of TeX's memory you used:
- 36379 strings out of 476180
- 717458 string characters out of 5785740
- 1262874 words of memory out of 5000000
- 56519 multiletter control sequences out of 15000+600000
- 473007 words of font info for 75 fonts, out of 8000000 for 9000
+ 36384 strings out of 476180
+ 717633 string characters out of 5785740
+ 1268449 words of memory out of 5000000
+ 56523 multiletter control sequences out of 15000+600000
+ 473015 words of font info for 76 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 104i,14n,117p,728b,514s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 104i,14n,117p,728b,518s stack positions out of 5000i,500n,10000p,200000b,80000s
 
 Output written on damcclayout.pdf (8 pages).
