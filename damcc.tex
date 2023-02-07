@@ -1,13 +1,10 @@
+``The idea that you can do a programming language in 100 000 lines of
+code or you might be able to do it in a page and there are advantages to
+the page for sure'' (Kay 2009)
+
 \hypertarget{definitional-architecture-metaprogramming}{%
 \section{Definitional Architecture
 Metaprogramming}\label{definitional-architecture-metaprogramming}}
-
-``The idea that you can do a programming language in 100 000 lines of
-code or you might be able to do it in a page and there are advantages to
-the page for sure'' --Alan Kay 2009 How Complex is ``Personal
-Computing''?
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 \hypertarget{definitional-interpreters-di}{%
 \paragraph{Definitional-Interpreters
@@ -17,8 +14,7 @@ convey the ideas and semantics of a language with brevity and clarity;
 the advantage with defining a language with this method over a
 specification document is that the result of the \textbf{DI} is
 executable, so there is no question of the meaning of an expression in a
-context. The need for avoiding complexity is more important in the
-context of \textbf{DI} than the need for optimization.
+context.
 
 \hypertarget{architecture}{%
 \paragraph{Architecture--}\label{architecture}}
@@ -32,23 +28,7 @@ cpus.
 \hypertarget{metaprogramming}{%
 \paragraph{Metaprogramming--}\label{metaprogramming}}
 
-a programming technique in which computer programs have the ability to
-treat other programs as their data.
-
-\hypertarget{c-compiler-damcc-as-the-di-of-the-c-language}{%
-\paragraph{\texorpdfstring{``\texttt{C}'' Compiler (\texttt{damcc}) as
-the DI of the ``\texttt{C}'' language
---}{``C'' Compiler (damcc) as the DI of the ``C'' language --}}\label{c-compiler-damcc-as-the-di-of-the-c-language}}
-
-Rarely is a language as well put together as \texttt{C}, Mixing
-\texttt{C} and assembly can often be as simple as not translating the
-assembly parts of the \texttt{C} code. A lot of compromises were made to
-do this; For all intents and purposes \texttt{C} is not so much a
-language so much as it is basically assembly and just as dangerous.
-\texttt{C} is a notoriously ``Dumb'' language, in that it will do
-exactly what \textbf{you} tell it to do; Including the set of all known
-computer \emph{bugs}: memory leaks, stack overflows, disk destruction,
-or worse.
+technique of programs manipulating other programs as data.
 
 \hypertarget{architecture-data-structure-c}{%
 \paragraph{\texorpdfstring{Architecture Data-Structure ``\texttt{C}''
@@ -64,93 +44,15 @@ quickly and easily by reading the code for the supported
 \emph{``It is better to have 100 functions operate on one data structure
 than 10 functions on 10 data structures.''} --Alan Perlis
 
-\hypertarget{stage-1-subset-of-c-as-an-intermediate-language}{%
-\paragraph{Stage 1 subset of C as an intermediate
-language--}\label{stage-1-subset-of-c-as-an-intermediate-language}}
+\hypertarget{metaprogramming-with-ometa}{%
+\subsection{\texorpdfstring{Metaprogramming with
+\textbf{OMeta}}{Metaprogramming with OMeta}}\label{metaprogramming-with-ometa}}
 
-Define what the \texttt{C} language is by using ``Ometa'' to convert
-from preprocessed \texttt{C} to \texttt{C} or our small subset of it
-that is more easily translatable to machine code. The goal here of using
-this subset of \texttt{C} is to ``explicitly enumerate all the nuances
-of the language'' by ``removing them''.
+See (Warth 2009) for what OMeta Is, this section is about how it works.
 
-\begin{itemize}
-\item
-  The meaning of all loops translated into gotos
-\item
-  nested if statements translated into guard clause non-nested if
-  statements
-\item
-  no more Arrays, Types, Struct, Union, Enum, or any other data-types
-  not manipulatable with assembly; just pointer arithmetic.
-\item
-  even though we can replace function calls with gotos, they need to be
-  left in to represent where we will leave symbol references for the
-  ``\texttt{.o}'' files
-\item
-  copies of variables that are created by a function call if they aren't
-  passed by reference, the goal here is to perhaps be Bi-directionally
-  translatable.
-\item
-  \texttt{sizeof()} tells the number of bytes that type or array
-  occupies, and \texttt{sizeof()} is known at compile time, and most of
-  the time this number is fed into arithmetic functions that can also be
-  calculated at compile time; which can allow optimizations here.
-\item
-  \texttt{\#include} lines willl be removed, files referenced by
-  \texttt{\#include} will have their funtions scanned and added to a
-  table of functions so that when a external function is called the
-  appropriate ``\texttt{symbol()}'' call of the elf file can be made.
-\item
-  \textbf{Memory--} all of variables \textbf{AND} pointers Each function
-  is to have all memory explicitly allocated/delocated with appropriate
-  calls to:
-
-  malloc() realloc() calloc() aligned\_alloc() free()
-\end{itemize}
-
-\hypertarget{memory-continued}{%
-\paragraph{memory continued--}\label{memory-continued}}
-
-Malloc() basically wraps both brk and mmap2 syscalls, but it also keeps
-internal information about the memory that has been allocated for use in
-later malloc calls or free calls. how this is implemented falls outside
-the scope of a compiler: Having to move around countless copies of the
-malloc() c function in each and every executable in the operating system
-is going to be slower than Dynamically linking to malloc(). Executable
-files aren't just a bunch of assembly code, there needs to be
-dynamically linkable functions at execution time even if we do our own
-linking.
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-\emph{``I came to realize that if I'm not writing a program, I shouldn't
-use a programming language. People confuse programming with coding,
-coding is to programming what typing is to writing. It's something that
-involves mental effort, what you're thinking about, what you're going to
-say, the words have some importance; but in some sense that even they
-are secondary to the ideas. In the same way programs are built on ideas,
-they have to do something and what they're supposed to do, is like what
-writing is supposed to convey. If people are trying to learn programming
-by being taught to code, well they're being taught writing by being
-taught how to type, and that doesn't make much sense.''} --Leslie
-Lamport https://youtu.be/rkZzg7Vowao
-
-\hypertarget{ometa-metaprogramming}{%
-\subsection{\texorpdfstring{\textbf{OMeta}
-Metaprogramming}{OMeta Metaprogramming}}\label{ometa-metaprogramming}}
-
-\emph{``The system that tries to find coverings of those trees pieces of
-structure within the trees is itself very very simple and you can write
-2 functions that do it reduce a particular piece of tree to a quantity a
-register in the machine in memory location literal in the machine or
-avoid just a statement that returns no value and do that by matching a
-particular piece of tree against the pattern in the list of rules these
-things are recursive so that structuring the trees can have sub
-structure etc and what falls out at the end is a yes or no answer and
-it's the inverse of the inverse of traditional parsing if you like where
-a normal posit X unstructured free text and creates a structured
-representation}
+(Piumarta 2007) -- \emph{``The system that tries to find coverings of
+those trees pieces of structure within the trees, is itself simple and
+you can write 2 functions that do it.}
 
 \begin{verbatim}
 reduce(tree, startSymbol) =
@@ -169,128 +71,34 @@ match(tree, pattern) =
     return true
 \end{verbatim}
 
-\emph{what this bottom-up system does is it takes a structured
-representation and tries to find inside quotes an optimal unstructured
-equivalent which in our case are machine instructions for the for the
-target machine}
+\emph{\textbf{Reduce} a particular piece of tree to a quantity: a
+register in the machine, a memory location, a literal in the machine, or
+a \texttt{void} just a statement that returns no value.}
+
+\emph{\textbf{Match} a particular piece of tree against the pattern in
+the list of rules. These things are recursive so that structuring the
+trees can have sub structure etc. and what falls out at the end is a yes
+or no answer.}
+
+\emph{It's the inverse of traditional parsing if you like where a normal
+parser takes unstructured free text and creates a structured
+representation. What this bottom-up system does is it takes a structured
+representation and tries to find ``an optimal unstructured equivalent''
+which in our case are machine instructions, for the for the target
+machine.}
 
 \emph{One of the interesting things that we've now done is we've
-described cogeneration as a tree rewriting process and what we've really
-been doing throughout the whole talk is describing how various phases of
-the implementation of a programming system can be described in terms of
-simple tree line structures and rules rewriting rules applied to them
-and we can hope in the end to create a single very small very easily
-understandable system tree rewriting system in which the whole of the
-language implementation problem is described.}
-
-\emph{now if you choose to go our way and play with some of the ideas
-that I'm talking about today one thing you will discover is that you
-need to find a fixed point to get the recursive descriptions started and
-the way that we did it was}
-
-\emph{write a bootstrap compiler in C that could understand a little
-object language we then rewrote the object language in the object
-language fed it through the bootstrap compiler to create a real compiler
-and then deleted the bootstrap compiler because it was now
-uninteresting.}
-
-\emph{Then everything else the the transformation rules for taking
-structures applying all the functional rules to them to create
-executable things within fed in and from that point on the whole system
-takes off exponentially because of the simplicity the expressiveness
-that is built into those 2 mutually supportive models within it.''}
-
--- 45:36 into presentation
-``\href{https://youtu.be/cn7kTPbW6QQ}{Building Your Own Dynamic
-Language}'' by Ian Piumarta
-\href{https://www.piumarta.com/papers/EE380-2007-slides.pdf}{slides}
-also see Alessandro Warth - 34:20 - How Complex is ``Personal
-Computing''?
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-\hypertarget{metaprogramming-example-translator}{%
-\paragraph{Metaprogramming Example
-translator}\label{metaprogramming-example-translator}}
-
-Control flow operators? maybe all we need is ``\texttt{goto}'' read this
-code:
-
-\begin{verbatim}
-while (condition) statement
-//the above while-loop is equivalent to the following logic
-begin:
-if (condition) {
-    statement;
-    goto begin;
-}
-
-do [loop body statement] while ([condition]);
-//the above do-while-loop is equivalent to the following logic
-begin:
-loop body statement;
-if (condition)
-    goto begin;
-
-for (variable-declaration; condition; variable-update) statement
-//the above for-loop is equivalent to the following logic
-variable-declaration;
-begin:
-    if (!condition)
-        goto end;
-    statement;
-    variable-update;
-    goto begin;
-end:
-    // end loop 
-
-switch (expression) {
-    case const-expr1: statement1
-    case const-expr2: statement2
-    case const-expr3: statement3
-    default: statements
-}
-//the above switch is equivalent to the following if-else logic
-type value = expression
-if (value == const-expr1)
-    statement1
-else if (value == const-expr2)
-    statement2
-else if (value == const-expr3)
-    statement3
-else
-    statement0
-
-#                                                               #
-#                                                               #
-#                                                               #
-#                                                               #
-#                                                               #
-#                                                               #
-#                                                               #
-#                                                               #
-#                                                               #
-#                                                               #
-#                                                               #
-#                                                               #
-#                                                               #
-#                                                               #
-#                                                               #
-#                                                               #
-#                                                               #
-#                                                               #
-#                                                               #
-#                                                               #
-#                                                               #
-#                                                               #
-//something else
-if (n > 0) {
-    if (a > b)
-        z = a;
-}
-else
-    z = b;
-\end{verbatim}
+described code generation as a tree rewriting process. . . . Various
+phases of the implementation of a programming system can be described in
+terms of tree like structures and rewriting-rules applied to them. We
+can hope in the end to create a single small easily understandable tree
+rewriting system in which the whole of the language implementation
+problem is described. . . . Then everything else the the transformation
+rules for taking structures applying all the functional rules to them to
+create executable things within fed in and from that point on the whole
+system takes off exponentially because of the simplicity the
+expressiveness that is built into those 2 mutually supportive models
+within it.''}
 
 \hypertarget{elf-format-relocatable-object-.o-files}{%
 \subsection{\texorpdfstring{(ELF Format) Relocatable Object
@@ -308,28 +116,246 @@ the raw inputs to ``linkers''. Translating from ``\texttt{C}'' to
 ``\texttt{.o}'' linkable binary files is the goal here and the
 definition of compiling.
 
-\hypertarget{stage1-notes}{%
-\subsubsection{Stage1 notes}\label{stage1-notes}}
+\hypertarget{stage-1-explicitly-enumerate-the-nuances-of-c-by-removing-them}{%
+\paragraph{\texorpdfstring{Stage 1 ``explicitly enumerate the nuances of
+\texttt{C}'' by ``removing
+them''}{Stage 1 ``explicitly enumerate the nuances of C'' by ``removing them''}}\label{stage-1-explicitly-enumerate-the-nuances-of-c-by-removing-them}}
+
+Define what the \texttt{C} language is using ``Ometa'' to convert from
+preprocessed \texttt{C} to \texttt{C} or our small subset of it as an
+Intermediate Representation(IR) The goal of using this subset of
+\texttt{C} is that it is more easily translatable to machine code.
+
+\begin{itemize}
+\tightlist
+\item
+  files referenced by \texttt{\#include} will have their functions
+  scanned and added to a table of functions listing the file and the
+  functions and types so that when a external function is called the
+  appropriate ``\texttt{symbol()}'' call of the elf file can be made.
+\item
+  even though we can replace function calls with gotos, they need to be
+  left in to represent where we will leave symbol references for the
+  ``\texttt{.o}'' files even executables are formatted this way the
+  \texttt{main()} function is called.
+\item
+  all paramaters to functions that are not passed by reference are to be
+  converted to paramaters that are passed by reference, and that
+  variable is never to be referenced, except when it is copied to
+  another location at the begining of the function and that copy is to
+  be used in its place in all of it's occurences.
+\item
+  The meaning of all loops translated into gotos
+\item
+  nested if statements translated into guard clause non-nested if
+  statements
+\item
+  arithmetic-assignment-operators (\texttt{+=}, \texttt{-=},
+  \texttt{*=}, \texttt{/=}, \texttt{\%=}) need to be converted to a
+  combination of the arithmetic operation of the correct type and the
+  assignment.
+\item
+  Each arithmetic-operator-function (\texttt{+}, \texttt{-}, \texttt{*},
+  \texttt{/}, \texttt{\%}), and each unary-operator-function
+  (\texttt{++}, \texttt{-\/-}), and each bitwise-operator-function
+  (\texttt{\&}, \texttt{\textbar{}}, \texttt{\textless{}\textless{}},
+  \texttt{\textgreater{}\textgreater{}}, \texttt{\textasciitilde{}},
+  \texttt{\^{}}) and each boolean-logical-operator (\texttt{\&\&},
+  \texttt{\textbar{}\textbar{}}, \texttt{!}) as well as relational
+  operators (\texttt{\textless{}}, \texttt{\textless{}=},
+  \texttt{\textgreater{}}, \texttt{\textgreater{}=}, \texttt{==},
+  \texttt{!=}) must be converted to a function call named after the type
+  of the inputs.
+\item
+  \texttt{sizeof()} tells the number of bytes that type or array
+  occupies, and \texttt{sizeof()} is known at compile time, and most of
+  the time this number is fed into arithmetic functions that can also be
+  calculated at compile time; which can allow optimizations here.
+\item
+  no more Arrays, Types, Struct, Union, Enum, or any other data-types
+  not manipulatable with assembly; just pointer arithmetic.
+\item
+  \textbf{Memory--} all of variables \textbf{AND} pointers Each function
+  or block \texttt{\{\}} is to have all memory explicitly
+  allocated/deallocated with appropriate calls to
+  \texttt{malloc()\ realloc()\ calloc()\ aligned\_alloc()\ free()}
+\end{itemize}
+
+There is no limit to the depth of the pointer to pointer to pointer to
+pointer type.
+
+\textbf{deallocation also happens whenever a goto jumps out of a block,
+including nested blocks}
+
+There may be more caveats I am missing this is a draft document.
+
+\texttt{C99} doesn't support function overloading . . . but we could
+perhaps add that as a command arg to stage1 by renaming overloaded
+functions to have the names of parameter types in part of the function
+name.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+But wait there's more to go over on memory! Storage and Types
+
+storage classes - auto, static, extern, and register only one storage
+class can be specified comes first in declaration
+
+\begin{verbatim}
+* storage duration - static or automatic
+* scope - block or file
+* linkage - external, internal, or no linkage
+\end{verbatim}
+
+auto(by default), static(), extern(says that this variable will be
+defined somewhere else, likely another file)
+
+type qualifier - const(val can't be changed abort with error if this is
+attempted) and volatile(value may change outside our control)
+
+type specifier - struct, enum, union need to be converted to regular
+types(\texttt{uintN\_t} \texttt{intN\_t} \texttt{floatN\_t}) or their
+pointers with typedef
+
+\emph{``Start at the variable name (or innermost construct if no
+identifier is present. Look right \textbf{without jumping over a right
+parenthesis}; say what you see. Look left again \textbf{without jumping
+over a parenthesis}; say what you see. Jump out a level of parentheses
+if any. Look right; say what you see. Look left; say what you see.
+Continue in this manner until you say the variable type or return
+type.''}
+--\href{https://parrt.cs.usfca.edu/doc/how-to-read-C-declarations.html}{Terrence
+Parr}
+
+Force \texttt{anytype\_t} to be \texttt{sometype\_t} with:
+\texttt{*(sometype\_t*)\&(anytype\_t\ code)} Every operation or function
+to be made strongly typed with the above, should enlighten users why the
+following 2 prints aren't equal.
+
+\begin{verbatim}
+float64_t rydb = 123456789543211;// hex code for rydb with typedef
+printf("hex value of \"rydb\" is %"PRIX64"\n", rydb);
+printf("hex value of \"rydb\" is %"PRIX64"\n", *(uint64_t*)&rydb);
+\end{verbatim}
+
+If there isn't a function available that accepts the given type abort
+with error here. \textbf{Statically typed} means that types are checked
+at compile time, \textbf{Dynamically typed} means that types are
+attached to values at run time, \texttt{C} is softly typed . .
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{metaprogramming-example-translator}{%
+\paragraph{Metaprogramming Example
+translator}\label{metaprogramming-example-translator}}
+
+Control flow operators? maybe all we need is ``\texttt{goto}'' read this
+code:
+
+\begin{verbatim}
+while (condition) statement
+//the above while-loop is equivalent to:
+begin:
+if (condition) {
+    statement;
+    goto begin;
+}
+
+do [loop body statement] while ([condition]);
+//the above do-while-loop is equivalent to:
+begin:
+loop body statement;
+if (condition)
+    goto begin;
+
+for (variable-declaration;
+     condition;
+     variable-update)
+     statement
+//the above for-loop is equivalent to:
+variable-declaration;
+begin:
+    if (!condition)
+        goto end;
+    statement;
+    variable-update;
+    goto begin;
+end:
+    // end loop 
+#                          Switch                                #
+switch (expression) {
+    case const-expr1: statement1
+    case const-expr2: statement2
+    case const-expr3: statement3
+    default: statements
+}
+//the above switch is equivalent to:
+type value = expression
+if (value == const-expr1)
+    statement1
+else if (value == const-expr2)
+    statement2
+else if (value == const-expr3)
+    statement3
+else
+    statement0
+
+//Which is also equivalent to:
+type value = expression
+if !(value == const-expr1) goto alternate2;
+    statement1; goto end;
+alternate2:
+if !(value == const-expr2) goto alternate3;
+    statement2; goto end;
+alternate3:
+if !(value == const-expr3) goto alternate0;
+    statement3; goto end;
+alternate0:
+    statement0
+end:
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+if (n > 0) { //nested if
+    if (a > b)
+        z = a;
+}
+else
+    z = b;
+
+//guard clause version of nested if
+if !(n > 0) goto alternate;
+if !(a > b) goto alternate;
+    z = a;
+    goto end;
+alternate:
+    z = b;
+end:
+\end{verbatim}
 
 \hypertarget{clean-and-convoluted}{%
 \paragraph{\texorpdfstring{\emph{``Clean''} and
 convoluted--}{``Clean'' and convoluted--}}\label{clean-and-convoluted}}
 
-Recall from the introduction after Stage1 is complete there will be no
-need to:
+after Stage1 is complete there will be no need to:
 
 \begin{itemize}
 \tightlist
 \item
   parse the \texttt{sizeof()} command
 \item
-  parse Arrays, Types, Struct, Union, Enum
+  parse types of variables
+\item
+  parse creation or destruction of any variables -- the \texttt{C} code
+  will be requesting memory for it's own variables and pointers the
+  appropriate function calls (\texttt{malloc()} etc.).
+\item
+  create or manage Arrays, Types, Struct, Union, Enum
 \item
   parse control flow statements switches loops etc.
-\item
-  create any variables -- the c code will be requesting memory for it's
-  own variables and pointers the appropriate function calls
-  (\texttt{malloc()} etc.).
 \item
   destroy any variables -- the c code should be explicitly calling
   \texttt{free()} on any variables that are to cease existance after
@@ -337,60 +363,125 @@ need to:
   \texttt{main()} scope.
 \end{itemize}
 
-\hypertarget{stage2---on-the-shoulders-of-giants}{%
-\subsubsection{Stage2 - on the shoulders of
-giants}\label{stage2---on-the-shoulders-of-giants}}
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-58:57 - 60:54 into \href{https://youtu.be/9epgZ-e6DUU}{Cliff Click -
-HotSpot ``C2'' JIT} ``The Java Hotspot Server Compiler'' high level
-overview of how C2 works Click, Paleczny, Vick
+\emph{``I came to realize that if I'm not writing a program, I shouldn't
+use a programming language. People confuse programming with coding,
+coding is to programming what typing is to writing. It's something that
+involves mental effort, what you're thinking about, what you're going to
+say, the words have some importance; but in some sense that even they
+are secondary to the ideas. In the same way programs are built on ideas,
+they have to do something and what they're supposed to do, is like what
+writing is supposed to convey. If people are trying to learn programming
+by being taught to code, well they're being taught writing by being
+taught how to type, and that doesn't make much sense.''} --Leslie
+Lamport https://youtu.be/rkZzg7Vowao
+
+\hypertarget{c-compiler-damcc-as-the-di-of-the-c-language}{%
+\paragraph{\texorpdfstring{``\texttt{C}'' Compiler (\texttt{damcc}) as
+the DI of the ``\texttt{C}'' language
+--}{``C'' Compiler (damcc) as the DI of the ``C'' language --}}\label{c-compiler-damcc-as-the-di-of-the-c-language}}
+
+Rarely is a language as well put together as \texttt{C}, Mixing
+\texttt{C} and assembly can often be as simple as not translating the
+assembly parts of the \texttt{C} code. A lot of compromises were made to
+do this; \texttt{C} is not so much a language so much as it is basically
+assembly and just as dangerous. \texttt{C} is a notoriously ``Dumb''
+language, in that it will do exactly what \textbf{you} tell it to do;
+Including the set of all known computer \emph{bugs}: memory leaks, stack
+overflows, disk destruction, or worse.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{stage-2-register-allocation}{%
+\paragraph{Stage 2 ``Register allocation''
+--}\label{stage-2-register-allocation}}
+
+determining which values should be placed into which memory hierarchy
+and at what time during the execution of the program.
+
+The different storage devices on modern computers: hard disk, ram, cpu
+cache, \& cpu registers all have different latencies, and \texttt{C}
+programs are written as if there are only 2 kinds of memory: main memory
+and disk. The Compiler is responsible for adding logic into the program
+to move data between the different memory hierarchies: memory,
+cpu-cache, and cpu-registers. The compiler is not responsible for the
+hard disk since it is accessed by function calls to the system or
+kernel.
+
+\emph{``Register allocation phase of the compiler stands between the
+optimization phase and the final code assembly and emission phase. When
+the intermediate or internal language (IL) enters register allocation,
+it is written assuming a hypothetical target machine having an unlimited
+number of high-speed general-purpose CPU registers. It is the
+responsibility of the optimization phase to eliminate references to
+storage by keeping data in these registers, as much as possible.''}
+--(Chaitin 1982)
+
+58:57 - 60:54 into (Click 2020) video overview of how C2 works described
+in (Paleczny, Vick, and Click 2001)
 
 \emph{``\textbf{Outline how The architecture description files, in how
-in general made the compiler suitable for many platforms all at once:}
-So there are some things there that I wouldn't do again including the
-burrs technology there is an architecture file that is used to describe
-a CPU architecture including the set of the kind of instructions and a
-mapping from the sea to ideal nodes to machine equivalents and the
-registers that are allowed and the encoding for the machine code
-encodings for them is sort of the common set of things there's a bunch
-of the things that are in there that are all these fine-grained details
-but the big pieces are:}
+in general made the compiler suitable for many platforms all at once:} .
+. . There is an architecture file that is used to describe a CPU
+architecture including the set of the kind of instructions and a mapping
+from the sea to ideal nodes to machine equivalents and the registers
+that are allowed and the encoding for the machine code encodings for
+them is sort of the common set of things there's a bunch of the things
+that are in there that are all these fine-grained details but the big
+pieces are:}
 
-\emph{here's a mapping from idealized nodes which is what the eye are
+\emph{Here's a mapping from idealized nodes which is what the eye are
 mostly runs on to get under code gen to hardware instructions and the
 registers that are allowed both on each individual hardware instruction
 input and overall what are those set of arc registers are allowed in the
 system and there is a tool which reads this file which is enough funny
 in its own little format and spits out C code that is in compiled in
-with the rest of the system bills what's called a burrs pattern matching
-which does a optimal for some definition of optimal mapping of Hardware
-instructions to ideal nodes by doing like an overlapping tree like like
-usually a hardware node covers two to five ideal nodes and so there's
-some tiling operation that covers them all including if it eight this
-region then those edges in between don't have to register allocated but
-all the edges on the outside do and then what all the registers that are
-involved and the registers turn into basically a bit set for every input
-and output of allowed registers and the register allocator Grox that bit
-set and uses it to pick the right registers so that gets into registrar
-in pretty heavily right away because that's how you describe inputs to
-the register allocator''}
+with the rest of the system.}
 
-\hypertarget{inline-arithmetic-functions-must-be-written-for-each-architecture}{%
-\paragraph{Inline Arithmetic functions must be written for each
-architecture
---}\label{inline-arithmetic-functions-must-be-written-for-each-architecture}}
+\emph{Builds what's called a burrs pattern matching which does a optimal
+for some definition of optimal mapping of Hardware instructions to ideal
+nodes by doing like an overlapping tree like like usually a hardware
+node covers two to five ideal nodes and so there's some tiling operation
+that covers them all including if it eight this region then those edges
+in between don't have to register allocated but all the edges on the
+outside do and then what all the registers that are involved and the
+registers turn into basically a bit set for every input and output of
+allowed registers and the register allocator Grox that bit set and uses
+it to pick the right registers so that gets into registrar in pretty
+heavily right away because that's how you describe inputs to the
+register allocator''}
 
-Arithmetic operations like ``\texttt{+}'' ``\texttt{-}'' ``\texttt{*}''
-``\texttt{/}'' ``\texttt{mod}'' ``\texttt{expt}'' etc. will be
-translated to a equivalent call e.g.~``\texttt{plus}'' that can be
-``inlined'' FOR EACH TYPE. Traditionally the instructions of a function
-have there own place in memory and a jump to that section is performed
-followed by a jump back to wherever the function was called from. Inline
-functions mean the whole code of the function is written verbatim each
-time it is called without any jump instructions. This is the reason
-programmers have the ``\texttt{inline}'' primitive, the c code the user
-feeds to the compiler and if the linker decides to honor the
-``\texttt{inline}'' primitive is where the decision is to be made.
+there are similar files in LLVM that describe CPU architectures.
+
+Intermediate Representation (IR)
+
+LLVM target descriptions are typically written in LLVM's own
+assembly-like language, also known as the LLVM \textbf{IR}. These files,
+called LLVM target descriptions, specify the \textbf{ISA} of the target
+machine, register sets, code generation options, and constraints on the
+code generation. The LLVM target descriptions are used by the LLVM code
+generator to produce machine code for a specific target architecture.
+
+In the LLVM source code, the target descriptions are typically located
+in the ``lib/Target'' directory. The ``.td'' extension target
+description files are usually found in subdirectories, for example
+``lib/Target/X86/X86.td''.
+
+At each stage of compilation/translation \texttt{damcc} data will remain
+in C until there is nothing left but assembly.
+
+\hypertarget{inline-functions}{%
+\paragraph{Inline functions --}\label{inline-functions}}
+
+The instructions of a function have there own place in memory and a jump
+to that section is performed followed by a jump back to wherever the
+function was called from. Short function calls that can be ``inlined''
+can take less cpu clocks to run than jumping to some other section of
+memory. \textbf{Inline functions} mean the whole code of the function is
+written verbatim whereever it is called without any jump instructions.
+In certain situations some compilers and may decide not to honor the
+``\texttt{inline}'' primitive.
 
 \begin{verbatim}
 // Static Inline function for each possible compare or jump
@@ -400,13 +491,30 @@ static inline int foo(){
 }
 \end{verbatim}
 
-At each stage of compilation/translation \texttt{damcc} data will remain
-in C until there is nothing left but assembly.
+\hypertarget{pointers}{%
+\paragraph{pointers --}\label{pointers}}
 
 ``address of'' operator: ``\texttt{\&}'' - returns address in memory of
 a variable ``dereference'' operator: ``\texttt{*}'' - Grab data of type
 of the argument at the given memory location ``ffi''-foreign function
 interface ``efi''-external function interface
+
+\hypertarget{advanced-inline-operator-functions}{%
+\paragraph{advanced Inline operator functions
+--}\label{advanced-inline-operator-functions}}
+
+the ternary operator (\texttt{?:}) are to be converted to if statements,
+and function calls to the appropriate boolean function. assignment
+operator \texttt{=}
+
+\hypertarget{goto}{%
+\paragraph{goto --}\label{goto}}
+
+If an active block is exited using a goto statement, any local variables
+are destroyed when control is transferred from that block. You cannot
+use a goto statement to jump over initializations.
+--\href{https://www.ibm.com/docs/en/zos/2.1.0?topic=statements-goto-\%20statement}{ibm
+goto}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -432,16 +540,54 @@ https://stackoverflow.com/questions/13901261/calling-assembly-function-from-c
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
+\begin{verbatim}
+e1 e2   sequencing
+e1 | e2 prioritized choice
+e∗      zero or more repetitions
+e+      one or more repetitions (not essential)
+∼e      negation
+<p>     production application
+’x’     matches the character x
+
+
+meta Calc (vars) {
+  __init__ ::= <empty> => [self vars: [IdentityDictionary new]];
+  space    ::= ’ ’;
+  var      ::= <letter>:x <space>* => x;
+  num      ::= <num>:n <digit>:d => [[n * ’10] + [d - ’$0]]
+             | <digit>:d <space>* => [d - ’$0];
+  priExpr  ::= <var>:x => [[self vars] at: x]
+             | <num>:n => n
+             | ’(’ <space>* <expr>:r ’)’ <space>* => r;
+  mulExpr  ::= <mulExpr>:x ’*’ <space>* <priExpr>:y => [x * y]
+             | <mulExpr>:x ’/’ <space>* <priExpr>:y => [x / y]
+             | <priExpr>;
+  addExpr  ::= <addExpr>:x ’+’ <space>* <mulExpr>:y => [x + y]
+             | <addExpr>:x ’-’ <space>* <mulExpr>:y => [x - y]
+             | <mulExpr>;
+  expr     ::= <var>:x ’=’ <space>* <expr>:r => [[self vars] at: x put: r]
+             | <addExpr>;
+  rep      ::= <space>* <expr>:r ’\n’ => (println r);
+}
+\end{verbatim}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
 \hypertarget{appendix}{%
 \subsection{Appendix}\label{appendix}}
 
-Sebastian Falbesoner 2014 Implementing a Global Register Allocator for
-TCC
-
-https://www.complang.tuwien.ac.at/Diplomarbeiten/falbesoner14.pdf
+\texttt{Malloc()} basically wraps both \texttt{brk} and \texttt{mmap2}
+syscalls, but it also keeps internal information about the memory that
+has been allocated for use in later malloc calls or free calls. how this
+is implemented falls outside the scope of a compiler: Having to move
+around countless copies of the \texttt{malloc()} function in each and
+every executable in the operating system is going to be slower than
+Dynamically linking to \texttt{malloc()}. Executable \texttt{.o} files
+aren't just a bunch of assembly code, there needs to be dynamically
+linkable functions at execution time even if we do our own linking.
 
 \hypertarget{events}{%
-\subsection{Events}\label{events}}
+\subsubsection{Events}\label{events}}
 
 Probably should write a library for events, hopefully this can be done
 in a library.
@@ -481,4 +627,151 @@ implements ThrowListener {//implement added to class
 ////Optional: 2 things to receive events from a class that is a member of the current class
 . . . go to Catcher.java file see this code . . .
 }
+
+
+#                                                               #
+#                                                               #
+#                                                               #
 \end{verbatim}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+as long as a pointer is not using a pointer to a pointer.
+\texttt{void\ func(int*\ p,\ int**\ pr)\{p++;\ (*pr)++;\}}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+overview of how C2 works(Paleczny, Vick, and Click 2001)
+
+Open, extensible composition models(Piumarta 2011b)
+
+Association-based model of dynamic behaviour(Piumarta 2011a)
+
+PEG-based transformer provides stages in a compiler(Piumarta 2010)
+
+Open, Extensible Object Models(Piumarta and Warth 2008)
+
+OMeta(Warth and Piumarta 2007)
+
+Virtual processor: dynamic code generation(Piumarta 2004)
+
+\href{https://www.complang.tuwien.ac.at/Diplomarbeiten/falbesoner14.pdf}{Sebastian
+Falbesoner 2014 Implementing a Global Register Allocator for TCC}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+Imperative \& Declarative Programming (Programming as Planning,
+Executable Specifications)(Samimi 2009)
+
+i'm sure you have seen an imperative as well as declarative
+methodologies to do programming. imperative is how implementations are
+done and declarative is we've seen prolog language you know it's
+meanings they're compact um they're very understandable but we need
+search in order to to execute them so that they're often not practical.
+
+part of what you're interested here to save codes as well as to add
+understandability to problems is; is there a way to kind of combine both
+at the same time? Which is not very common today. This is a famous quote
+that i made recently that the natural combination of declaritive and
+imperative is missing. A couple of methodologies that we kind of studied
+in this direction:
+
+basically if you add a a a layer of logic on top of your your your
+languages to support search basically your heuristic search you can do
+imperative programming with a little bit of overhead if you always
+willing to add optimizations so in the in the presence of multiple
+methods if there's a if there's an optimization that always tells you
+based on the state which method is the is a good method to take so you
+always do this check to to find out the different alternatives then you
+have this little bit overhead of checking to do your normal imperative
+but when you do want when you do have the you know um leverage to do
+kind of search you have the option to say well explore possibilities and
+find the best scenario to to do so this is what this this project is all
+about you know allows you to kind of separate the optimizations and
+heuristics from from the actual implementations the actions that you see
+here to satisfy goals.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+The need for avoiding complexity is more important in the context of
+\textbf{DI} than the need for optimization.
+
+\hypertarget{references}{%
+\subsection*{References}\label{references}}
+\addcontentsline{toc}{subsection}{References}
+
+\hypertarget{refs}{}
+\begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-10.1145ux2f800230.806984}{}}%
+Chaitin, G. J. 1982. {``Register Allocation \&Amp; Spilling via Graph
+Coloring.''} In \emph{Proceedings of the 1982 SIGPLAN Symposium on
+Compiler Construction}, 98--105. SIGPLAN '82. New York, NY, USA:
+Association for Computing Machinery.
+\url{https://doi.org/10.1145/800230.806984}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-ClickNodes}{}}%
+Click, Cliff. 2020. {``The Sea of Nodes and the HotSpot JIT.''}
+\emph{YouTube}. \url{https://youtu.be/9epgZ-e6DUU?t=3535}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Kay_video2009}{}}%
+Kay, Alan. 2009. {``How Complex Is "Personal Computing"?''}
+\emph{YouTube}. \url{https://youtu.be/HAT4iewOHDs}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-10.5555ux2f1267847.1267848}{}}%
+Paleczny, Michael, Christopher Vick, and Cliff Click. 2001. {``The Java
+HotspotTM Server Compiler.''} In \emph{Proceedings of the 2001 Symposium
+on JavaTM Virtual Machine Research and Technology Symposium - Volume 1},
+1. JVM'01. USA: USENIX Association.
+
+\leavevmode\vadjust pre{\hypertarget{ref-10.5555ux2f1267242.1267250}{}}%
+Piumarta, Ian. 2004. {``The Virtual Processor: Fast,
+Architecture-Neutral Dynamic Code Generation.''} In \emph{Proceedings of
+the 3rd Conference on Virtual Machine Research and Technology Symposium
+- Volume 3}, 8. VM'04. USA: USENIX Association.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Piumarta_video2007}{}}%
+---------. 2007. {``Building Your Own Dynamic Language.''}
+\emph{YouTube}. \url{https://youtu.be/cn7kTPbW6QQ?t=2736}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-10.1145ux2f1942793.1942796}{}}%
+---------. 2010. {``PEG-Based Transformer Provides Front-, Middle-and
+Back-End Stages in a Simple Compiler.''} In \emph{Workshop on
+Self-Sustaining Systems}, 10--20. S3 '10. New York, NY, USA: Association
+for Computing Machinery. \url{https://doi.org/10.1145/1942793.1942796}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-10.1145ux2f2068776.2068779}{}}%
+---------. 2011a. {``An Association-Based Model of Dynamic Behaviour.''}
+In \emph{Proceedings of the 1st International Workshop on Free
+Composition}. FREECO '11. New York, NY, USA: Association for Computing
+Machinery. \url{https://doi.org/10.1145/2068776.2068779}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-10.1145ux2f2068776.2068778}{}}%
+---------. 2011b. {``Open, Extensible Composition Models.''} In
+\emph{Proceedings of the 1st International Workshop on Free
+Composition}. FREECO '11. New York, NY, USA: Association for Computing
+Machinery. \url{https://doi.org/10.1145/2068776.2068778}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-10.1007ux2f978-3-540-89275-5_1}{}}%
+Piumarta, Ian, and Alessandro Warth. 2008. {``Open, Extensible Object
+Models.''} In \emph{Self-Sustaining Systems: First Workshop, S3 2008
+Potsdam, Germany, May 15-16, 2008 Revised Selected Papers}, 1--30.
+Berlin, Heidelberg: Springer-Verlag.
+\url{https://doi.org/10.1007/978-3-540-89275-5_1}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Samimi_video2009}{}}%
+Samimi, Hesam. 2009. {``Imperative \& Declarative Programming
+(Programming as Planning, Executable Specifications).''} \emph{YouTube}.
+\url{https://youtu.be/HAT4iewOHDs?t=3578}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-Warth_video2009}{}}%
+Warth, Alessandro. 2009. {``Domain-Specific Languages (OMeta).''}
+\emph{YouTube}. \url{https://youtu.be/HAT4iewOHDs?t=2060}.
+
+\leavevmode\vadjust pre{\hypertarget{ref-10.1145ux2f1297081.1297086}{}}%
+Warth, Alessandro, and Ian Piumarta. 2007. {``OMeta: An Object-Oriented
+Language for Pattern Matching.''} In \emph{Proceedings of the 2007
+Symposium on Dynamic Languages}, 11--19. DLS '07. New York, NY, USA:
+Association for Computing Machinery.
+\url{https://doi.org/10.1145/1297081.1297086}.
+
+\end{CSLReferences}

@@ -1,21 +1,17 @@
 [//]: # ( Copyright 2023. This work is licensed under a CC BY NC ND 4.0 license. )
 
-# Definitional Architecture Metaprogramming
-
 "The idea that you can do a programming language in 100 000 lines of
 code or you might be able to do it in a page and there are advantages
-to the page for sure" --Alan Kay 2009 How Complex is "Personal
-Computing"?
+to the page for sure" [@Kay_video2009]
 
-_____________________________________________________________________
+# Definitional Architecture Metaprogramming
 
 #### Definitional-Interpreters (DI)--
 convey the ideas and semantics of a language with brevity and 
 clarity; the advantage with defining a language with this method over 
 a specification document is that the result of the **DI** is 
 executable, so there is no question of the meaning of an expression 
-in a context. The need for avoiding complexity is more important  in 
-the context of **DI** than the need for optimization.
+in a context.
 
 #### Architecture--
 Different cpus need different executables if they use different 
@@ -24,18 +20,10 @@ instruction-sets, and even if they do use the same
 that may extend an **ISA**, to let older programs run on newer cpus.
 
 #### Metaprogramming--
-a programming technique in which computer programs have the ability
-to treat other programs as their data.
+technique of programs manipulating other programs as data.
 
-####  "`C`" Compiler (`damcc`) as the DI of the "`C`" language --
-Rarely is a language as well put together as `C`, Mixing `C` and 
-assembly can often be as simple as not translating the assembly parts 
-of the `C` code. A lot of compromises were made to do this; For all 
-intents and purposes `C` is not so much a language so much as it is 
-basically assembly and just as dangerous. `C` is a notoriously "Dumb" 
-language, in that it will do exactly what **you** tell it to do; 
-Including the set of all known computer *bugs*: memory leaks, stack 
-overflows, disk destruction, or worse.
+[//]: # (a programming technique in which computer programs have the 
+ability to treat other programs as their data.)
 
 #### Architecture Data-Structure "`C`" --
 For compiling/interpreting any language; `C` is an excellent target 
@@ -47,76 +35,13 @@ the supported **ISA**s.(as well as elf files and static/dynamic
 linking) _"It is better to have 100 functions operate on one data 
 structure than 10 functions on 10 data structures."_ --Alan Perlis
 
-#### Stage 1 subset of C as an intermediate language--
-Define what the `C` language is by using "Ometa" to convert from 
-preprocessed `C` to `C` or our small subset of it that is more 
-easily translatable to machine code. The goal here of using 
-this subset of `C` is to "explicitly enumerate all the nuances of the language" by "removing them".
+## Metaprogramming with **OMeta**
+See [@Warth_video2009] for what OMeta Is, this section is about how
+it works.
 
- * The meaning of all loops translated into gotos
- * nested if statements translated into guard clause non-nested if 
-statements
- * no more Arrays, Types, Struct, Union, Enum, or any other
-data-types not manipulatable with assembly; just pointer arithmetic.
- * even though we can replace function calls with gotos, they need to 
-be left in to represent where we will leave symbol references for the 
-"`.o`" files
- * copies of variables that are created by a function call if they 
-aren't passed by reference, the goal here is to perhaps be
-Bi-directionally translatable.
- * `sizeof()` tells the number of bytes that type or array occupies,
-and `sizeof()` is known at compile time, and most of the time this
-number is fed into arithmetic functions that can also be calculated
-at compile time; which can allow optimizations here.
- * `#include` lines willl be removed, files referenced by `#include` 
-will have their funtions scanned and added to a table of functions so 
-that when a external function is called the appropriate "`symbol()`" 
-call of the elf file can be made.
- * **Memory--** all of variables **AND** pointers Each function is to 
-have all memory explicitly allocated/delocated with appropriate calls 
-to:
-
-    malloc() realloc() calloc() aligned_alloc() free()
-
-#### memory continued--
-Malloc() basically wraps both brk and mmap2 syscalls, but it also 
-keeps internal information about the memory that has been allocated 
-for use in later malloc calls or free calls. how this is implemented 
-falls outside the scope of a compiler: Having to move around 
-countless copies of the malloc() c function in each and every 
-executable in the operating system is going to be slower than 
-Dynamically linking to malloc(). Executable files aren't just a bunch 
-of assembly code, there needs to be dynamically linkable functions at 
-execution time even if we do our own linking.
-
-_____________________________________________________________________
-
-_"I came to realize that if I'm not writing a program, I shouldn't 
-use a programming language. People confuse programming with coding, 
-coding is to programming what typing is to writing. It's something 
-that involves mental effort, what you're thinking about, what you're 
-going to say, the words have some importance;  but in some sense that 
-even they are secondary to the ideas. In the same way programs are 
-built on ideas, they have to do something and what they're supposed 
-to do, is like what writing is supposed to convey. If people are 
-trying to learn programming by being taught to code, well they're 
-being taught writing by being taught how to type, and that doesn't 
-make much sense."_ --Leslie Lamport https://youtu.be/rkZzg7Vowao
-
-## **OMeta** Metaprogramming
-
-
-_"The system that tries to find coverings of those trees pieces of 
-structure within the trees is itself very very simple and you can 
-write 2 functions that do it reduce a particular piece of tree to a 
-quantity a register in the machine in memory location literal in the 
-machine or avoid just a statement that returns no value and do that 
-by matching a particular piece of tree against the pattern in the 
-list of rules these things are recursive so that structuring the 
-trees can have sub structure etc and what falls out at the end is a 
-yes or no answer and it's the inverse of the inverse of traditional 
-parsing if you like where a normal posit X unstructured free text and 
-creates a structured representation_
+[@Piumarta_video2007] -- _"The system that tries to find coverings of
+those trees pieces of structure within the trees, is itself simple and
+you can write 2 functions that do it._
 
     reduce(tree, startSymbol) =
         foreach rule in startSymbol.startSets
@@ -133,42 +58,142 @@ creates a structured representation_
                 return false
         return true
 
-_what this bottom-up system does is it takes a structured 
-representation and tries to find inside quotes an optimal 
-unstructured equivalent which in our case are machine instructions 
-for the for the target machine_
+_**Reduce** a particular piece of tree to a quantity: a register in
+the machine, a memory location, a literal in the machine, or a `void`
+just a statement that returns no value._
 
-_One of the interesting things that we've now done is we've 
-described cogeneration as a tree rewriting process and what we've 
-really been doing throughout the whole talk is describing how various 
-phases of the implementation of a programming system can be described 
-in terms of simple tree line structures and rules rewriting rules 
-applied to them and we can hope in the end to create a single very 
-small very easily understandable system tree rewriting system in 
-which the whole of the language implementation problem is described._
+_**Match** a particular piece of tree against the pattern in the list
+of rules. These things are recursive so that structuring the trees can
+have sub structure etc. and what falls out at the end is a yes or no
+answer._
 
-_now if you choose to go our way and play with some of the ideas that 
-I'm talking about today one thing you will discover is that you need 
-to find a fixed point to get the recursive descriptions started and 
-the way that we did it was_
+_It's the inverse of traditional parsing if you like where a normal
+parser takes unstructured free text and creates a structured
+representation. What this bottom-up system does is it takes a
+structured representation and tries to find "an optimal unstructured
+equivalent" which in our case are machine instructions, for the for
+the target machine._
 
-_write a bootstrap compiler in C that could understand a little object 
-language we then rewrote the object language in the object language 
-fed it through the bootstrap compiler to create a real compiler and 
-then deleted the bootstrap compiler because it was now uninteresting._
+_One of the interesting things that we've now done is we've described
+code generation as a tree rewriting process. . . . Various phases of
+the implementation of a programming system can be described in terms
+of tree like structures and rewriting-rules applied to them. We can
+hope in the end to create a single small easily understandable tree
+rewriting system in which the whole of the language implementation
+problem is described. . . . Then everything else the the
+transformation rules for taking structures applying all the functional
+rules to them to create executable things within fed in and from that
+point on the whole system takes off exponentially because of the
+simplicity the expressiveness that is built into those 2 mutually
+supportive models within it."_
 
-_Then everything else the the transformation rules for taking 
-structures applying all the functional rules to them to create 
-executable things within fed in and from that point on the whole 
-system takes off exponentially because of the simplicity the 
-expressiveness that is built into those 2 mutually supportive 
-models within it."_
+## (ELF Format) Relocatable Object "`.o`" Files --
+Relocatable object files are files that are in the "elf" executable
+and linkable format. To Dynamically link to each foreign function call
+requires parsing header files to see which header provides each
+function that is used in the current file, to properly call the
+function and throw an error if a function isn't available. "`.o`"
+files are binary data assembly with symbols packed in, based on a
+specification. This is the format for linux executables and libraries,
+These files are the raw inputs to "linkers". Translating from "`C`" to
+"`.o`" linkable binary files is the goal here and the definition of
+compiling.
 
--- 45:36 into presentation "[Building Your Own 
-Dynamic Language](https://youtu.be/cn7kTPbW6QQ)" by Ian Piumarta
-[slides](https://www.piumarta.com/papers/EE380-2007-slides.pdf)
-also see Alessandro Warth - 34:20 - How Complex is "Personal
-Computing"?
+#### Stage 1 "explicitly enumerate the nuances of `C`" by "removing them"
+
+Define what the `C` language is using "Ometa" to convert from
+preprocessed `C` to `C` or our small subset of it as an Intermediate
+Representation(IR) The goal of using this subset of `C` is that it is
+more easily translatable to machine code.
+
+ * files referenced by `#include` will have their functions scanned 
+and added to a table of functions listing the file and the functions
+and types so that when a external function is 
+called the appropriate "`symbol()`" call of the elf file can be made.
+ * even though we can replace function calls with gotos, they need to
+be left in to represent where we will leave symbol references for the
+"`.o`" files even executables are formatted this way the `main()`
+function is called.
+ * all paramaters to functions that are not passed by reference
+are to be converted to paramaters that are passed by reference, 
+and that variable is never to be referenced, except when it is copied to another 
+location at the begining of the function and that copy is to be used in its place in all of it's occurences.
+ * The meaning of all loops translated into gotos
+ * nested if statements translated into guard clause non-nested if
+statements
+ * arithmetic-assignment-operators (`+=`, `-=`, `*=`, `/=`, `%=`) need to be 
+converted to a combination of the arithmetic operation of the correct
+type and the assignment.
+ * Each arithmetic-operator-function (`+`, `-`, `*`, `/`, `%`), and 
+each unary-operator-function (`++`, `--`), and each 
+bitwise-operator-function (`&`, `|`, `<<`, `>>`, `~`, `^`) and each 
+boolean-logical-operator (`&&`, `||`, `!`) as well as relational 
+operators (`<`, `<=`, `>`, `>=`, `==`, `!=`) must be converted to a 
+function call named after the type of the inputs.
+ * `sizeof()` tells the number of bytes that type or array occupies,
+and `sizeof()` is known at compile time, and most of the time this
+number is fed into arithmetic functions that can also be calculated
+at compile time; which can allow optimizations here.
+ * no more Arrays, Types, Struct, Union, Enum, or any other
+data-types not manipulatable with assembly; just pointer arithmetic.
+ * **Memory--** all of variables **AND** pointers Each function or
+block `{}` is to have all memory explicitly allocated/deallocated with
+appropriate calls to `malloc() realloc() calloc() aligned_alloc() free()`
+
+There is no limit to the depth of the pointer to pointer to pointer to
+pointer type.
+
+**deallocation also happens whenever a goto jumps out of a block,
+including nested blocks**
+
+There may be more caveats I am missing this is a draft document.
+
+`C99` doesn’t support function overloading . . . but we could perhaps 
+add that as a command arg to stage1 by renaming overloaded functions 
+to have the names of parameter types in part of the function name.
+
+_____________________________________________________________________
+
+But wait there's more to go over on memory! Storage and Types
+
+storage classes - auto, static, extern, and register
+only one storage class can be specified
+comes first in declaration
+
+    * storage duration - static or automatic
+    * scope - block or file
+    * linkage - external, internal, or no linkage
+
+auto(by default), static(), extern(says that this variable will be defined somewhere else, likely another file)
+
+type qualifier - const(val can't be changed abort with error if this
+is attempted) and volatile(value may change outside our control)
+
+type specifier - struct, enum, union need to be converted to
+regular types(`uintN_t` `intN_t` `floatN_t`) or their pointers with typedef
+
+_"Start at the variable name (or innermost construct if no identifier 
+is present. Look right **without jumping over a right parenthesis**; 
+say what you see. Look left again **without jumping over a 
+parenthesis**; say what you see. Jump out a level of parentheses if 
+any. Look right; say what you see. Look left; say what you see. 
+Continue in this manner until you say the variable type or return 
+type."_ --[Terrence 
+Parr](https://parrt.cs.usfca.edu/doc/how-to-read-C-declarations.html)
+
+Force `anytype_t` to be `sometype_t` with: 
+`*(sometype_t*)&(anytype_t code)` Every operation or function to be made 
+strongly typed with the above, should enlighten users why the 
+following 2 prints aren't equal.
+
+    float64_t rydb = 123456789543211;// hex code for rydb with typedef
+    printf("hex value of \"rydb\" is %"PRIX64"\n", rydb);
+    printf("hex value of \"rydb\" is %"PRIX64"\n", *(uint64_t*)&rydb);
+
+If there isn't a function available that accepts the given type abort 
+with error here. **Statically typed** means that types are checked at 
+compile time, **Dynamically typed** means that types are attached to 
+values at run time, `C` is softly typed . .
 
 _____________________________________________________________________
 
@@ -176,7 +201,7 @@ _____________________________________________________________________
 Control flow operators? maybe all we need is "`goto`" read this code:
 
     while (condition) statement
-    //the above while-loop is equivalent to the following logic
+    //the above while-loop is equivalent to:
     begin:
     if (condition) {
         statement;
@@ -184,14 +209,17 @@ Control flow operators? maybe all we need is "`goto`" read this code:
     }
 
     do [loop body statement] while ([condition]);
-    //the above do-while-loop is equivalent to the following logic
+    //the above do-while-loop is equivalent to:
     begin:
     loop body statement;
     if (condition)
         goto begin;
 
-    for (variable-declaration; condition; variable-update) statement
-    //the above for-loop is equivalent to the following logic
+    for (variable-declaration;
+         condition;
+         variable-update)
+         statement
+    //the above for-loop is equivalent to:
     variable-declaration;
     begin:
         if (!condition)
@@ -201,14 +229,14 @@ Control flow operators? maybe all we need is "`goto`" read this code:
         goto begin;
     end:
         // end loop 
-
+    #                          Switch                                #
     switch (expression) {
         case const-expr1: statement1
         case const-expr2: statement2
         case const-expr3: statement3
         default: statements
     }
-    //the above switch is equivalent to the following if-else logic
+    //the above switch is equivalent to:
     type value = expression
     if (value == const-expr1)
         statement1
@@ -219,87 +247,124 @@ Control flow operators? maybe all we need is "`goto`" read this code:
     else
         statement0
 
+    //Which is also equivalent to:
+    type value = expression
+    if !(value == const-expr1) goto alternate2;
+        statement1; goto end;
+    alternate2:
+    if !(value == const-expr2) goto alternate3;
+        statement2; goto end;
+    alternate3:
+    if !(value == const-expr3) goto alternate0;
+        statement3; goto end;
+    alternate0:
+        statement0
+    end:
     #                                                               #
     #                                                               #
     #                                                               #
     #                                                               #
     #                                                               #
     #                                                               #
-    #                                                               #
-    #                                                               #
-    #                                                               #
-    #                                                               #
-    #                                                               #
-    #                                                               #
-    #                                                               #
-    #                                                               #
-    #                                                               #
-    #                                                               #
-    #                                                               #
-    #                                                               #
-    #                                                               #
-    #                                                               #
-    #                                                               #
-    #                                                               #
-    //something else
-    if (n > 0) {
+    if (n > 0) { //nested if
         if (a > b)
             z = a;
     }
     else
         z = b;
 
-## (ELF Format) Relocatable Object "`.o`" Files --
-Relocatable object files are files that are in the "elf" executable 
-and linkable format. To Dynamically link to each foreign function 
-call requires parsing header files to see which header provides each 
-function that is used in the current file, to properly call the 
-function and throw an error if a function isn't available. "`.o`" 
-files are binary data assembly with symbols packed in, based on a 
-specification. This is the format for linux executables and 
-libraries, These files are the raw inputs to "linkers". Translating 
-from "`C`" to "`.o`" linkable binary files is the goal here and the 
-definition of compiling.
+    //guard clause version of nested if
+    if !(n > 0) goto alternate;
+    if !(a > b) goto alternate;
+        z = a;
+        goto end;
+    alternate:
+        z = b;
+    end:
 
-### Stage1 notes
 #### _"Clean"_ and convoluted--
-Recall from the introduction after Stage1 is complete there will be 
-no need to:
+after Stage1 is complete there will be no need to:
 
  * parse the `sizeof()` command
- * parse Arrays, Types, Struct, Union, Enum
- * parse control flow statements switches loops etc.
- * create any variables -- the c code will be requesting memory for 
-it's own variables and pointers the appropriate function calls 
+ * parse types of variables
+ * parse creation or destruction of any variables -- the `C` code will be requesting
+memory for it's own variables and pointers the appropriate function calls
 (`malloc()` etc.).
+ * create or manage Arrays, Types, Struct, Union, Enum
+ * parse control flow statements switches loops etc.
  * destroy any variables -- the c code should be explicitly calling `free()` on
 any variables that are to cease existance after they fall out of scope
 including global variables at the end of the `main()` scope.
 
-### Stage2 - on the shoulders of giants
-58:57 - 60:54 into [Cliff Click - HotSpot "C2" JIT](https://youtu.be/9epgZ-e6DUU)
-"The Java Hotspot Server Compiler" high level overview of how
-      C2 works Click, Paleczny, Vick
+_____________________________________________________________________
 
-_"**Outline how The architecture description files, in how in general 
-made the compiler suitable for many platforms all at once:** So there 
-are some things there that I wouldn't do again including the burrs 
-technology there is an architecture file that is used to describe a 
-CPU architecture including the set of the kind of instructions and a 
-mapping from the sea to ideal nodes to machine equivalents and the 
-registers that are allowed and the encoding for the machine code 
-encodings for them is sort of the common set of things there's a 
-bunch of the things that are in there that are all these fine-grained 
+_"I came to realize that if I'm not writing a program, I shouldn't
+use a programming language. People confuse programming with coding, 
+coding is to programming what typing is to writing. It's something 
+that involves mental effort, what you're thinking about, what you're 
+going to say, the words have some importance;  but in some sense that 
+even they are secondary to the ideas. In the same way programs are 
+built on ideas, they have to do something and what they're supposed 
+to do, is like what writing is supposed to convey. If people are 
+trying to learn programming by being taught to code, well they're 
+being taught writing by being taught how to type, and that doesn't 
+make much sense."_ --Leslie Lamport https://youtu.be/rkZzg7Vowao
+
+####  "`C`" Compiler (`damcc`) as the DI of the "`C`" language --
+Rarely is a language as well put together as `C`, Mixing `C` and 
+assembly can often be as simple as not translating the assembly parts 
+of the `C` code. A lot of compromises were made to do this; `C` is 
+not so much a language so much as it is basically assembly and just 
+as dangerous. `C` is a notoriously "Dumb" language, in that it will 
+do exactly what **you** tell it to do; Including the set of all known 
+computer *bugs*: memory leaks, stack overflows, disk destruction, or 
+worse.
+
+_____________________________________________________________________
+
+#### Stage 2 "Register allocation" --
+determining which values should be placed into which memory hierarchy
+and at what time during the execution of the program.
+
+The different storage devices on modern computers: hard disk, ram, cpu
+cache, & cpu registers all have different latencies, and `C` programs
+are written as if there are only 2 kinds of memory: main memory and
+disk. The Compiler is responsible for adding logic into the program to
+move data between the different memory hierarchies: memory, cpu-cache,
+and cpu-registers. The compiler is not responsible for the hard disk
+since it is accessed by function calls to the system or kernel.
+
+_"Register allocation phase of the compiler stands between the
+optimization phase and the final code assembly and emission phase.
+When the intermediate or internal language (IL) enters register
+allocation, it is written assuming a hypothetical target machine
+having an unlimited number of high-speed general-purpose CPU
+registers. It is the responsibility of the optimization phase to
+eliminate references to storage by keeping data in these registers, as
+much as possible."_ --[@10.1145/800230.806984]
+
+58:57 - 60:54 into [@ClickNodes] video
+overview of how C2 works described in [@10.5555/1267847.1267848]
+
+_"**Outline how The architecture description files, in how in general
+made the compiler suitable for many platforms all at once:** . . .
+There is an architecture file that is used to describe a CPU
+architecture including the set of the kind of instructions and a
+mapping from the sea to ideal nodes to machine equivalents and the
+registers that are allowed and the encoding for the machine code
+encodings for them is sort of the common set of things there's a bunch
+of the things that are in there that are all these fine-grained
 details but the big pieces are:_
 
-_here's a mapping from idealized nodes 
+_Here's a mapping from idealized nodes
 which is what the eye are mostly runs on to get under code gen to 
 hardware instructions and the registers that are allowed both on each 
 individual hardware instruction input and overall what are those set 
 of arc registers are allowed in the system and there is a tool which 
 reads this file which is enough funny in its own little format and 
-spits out C code that is in compiled in with the rest of the system 
-bills what's called a burrs pattern matching which does a optimal for 
+spits out C code that is in compiled in with the rest of the system._
+
+_Builds what's called a burrs pattern matching which does a optimal for
 some definition of optimal mapping of Hardware instructions to ideal 
 nodes by doing like an overlapping tree like like usually a hardware 
 node covers two to five ideal nodes and so there's some tiling 
@@ -312,19 +377,36 @@ that bit set and uses it to pick the right registers so that gets
 into registrar in pretty heavily right away because that's how you 
 describe inputs to the register allocator"_
 
+there are similar files in LLVM that describe CPU architectures.
 
-#### Inline Arithmetic functions must be written for each architecture --
-Arithmetic operations like "`+`" "`-`" "`*`" "`/`" "`mod`" "`expt`" 
-etc. will be translated to a equivalent call e.g. "`plus`" that can 
-be "inlined" FOR EACH TYPE. Traditionally the instructions of a 
-function have there own place in memory and a jump to that section is 
-performed followed by a jump back to wherever the function was called 
-from. Inline functions mean the whole code of the function is written 
-verbatim each time it is called without any jump instructions. This is the reason
-programmers have the "`inline`" primitive, the c code the user feeds
-to the compiler and if the linker decides to honor the "`inline`"
-primitive is where the decision is to be made.
+Intermediate Representation (IR)
 
+LLVM target descriptions are typically written in LLVM's own
+assembly-like language, also known as the LLVM **IR**. These files,
+called LLVM target descriptions, specify the **ISA** of the target
+machine, register sets, code generation options, and constraints on
+the code generation. The LLVM target descriptions are used by the LLVM
+code generator to produce machine code for a specific target
+architecture.
+
+In the LLVM source code, the target descriptions are typically located
+in the "lib/Target" directory. The  ".td" extension target description
+files are usually found in subdirectories, for example
+"lib/Target/X86/X86.td".
+
+
+At each stage of compilation/translation `damcc` data will remain
+in C until there is nothing left but assembly.
+
+#### Inline functions --
+The instructions of a function have there own place in
+memory and a jump to that section is performed followed by a jump back
+to wherever the function was called from. Short function calls that
+can be "inlined" can take less cpu clocks to run than jumping to some
+other section of memory. **Inline functions** mean the whole code of
+the function is written verbatim whereever it is called without any
+jump instructions. In certain situations some compilers and may
+decide not to honor the "`inline`" primitive.
 
     // Static Inline function for each possible compare or jump
     // for the current architecture in assembly
@@ -332,23 +414,36 @@ primitive is where the decision is to be made.
         return 2;
     }
 
-At each stage of compilation/translation `damcc` data will remain
-in C until there is nothing left but assembly.
 
-
+#### pointers --
 "address of" operator: "`&`" - returns address in memory of a variable
 "dereference" operator: "`*`" - Grab data of type of the argument at
 the given memory location
 "ffi"-foreign function interface
 "efi"-external function interface
 
+#### advanced Inline operator functions --
+the ternary operator (`?:`) are to be
+converted to if statements, and function calls to the appropriate
+boolean function.
+assignment operator `=`
+
+
+#### goto --
+If an active block is exited using a goto statement, any local
+variables are destroyed when control is transferred from that block.
+You cannot use a goto statement to jump over initializations. --[ibm
+goto](https://www.ibm.com/docs/en/zos/2.1.0?topic=statements-goto-
+statement)
+
 _____________________________________________________________________
+
 #### Executable Linkers are basically just home theater setups-
 Executable Linkers are basically just home theater setups CS361 Chris Kanich
 https://youtu.be/eQ0KOT_J8Sk?list=PLhy9gU5W1fvUND_5mdpbNVHC1WCIaABbP
 
-in certain situations with low memory budgets other techniques might be used
---https://github.com/avrdudes/avr-libc
+in certain situations with low memory budgets other techniques might
+be used --https://github.com/avrdudes/avr-libc
 
 #### external function interface
 To allow assembly functions in our compiled code to to be called from another
@@ -358,14 +453,50 @@ https://stackoverflow.com/questions/13901261/calling-assembly-function-from-c
 
 _____________________________________________________________________
 
+
+    e1 e2   sequencing
+    e1 | e2 prioritized choice
+    e∗      zero or more repetitions
+    e+      one or more repetitions (not essential)
+    ∼e      negation
+    <p>     production application
+    ’x’     matches the character x
+
+
+    meta Calc (vars) {
+      __init__ ::= <empty> => [self vars: [IdentityDictionary new]];
+      space    ::= ’ ’;
+      var      ::= <letter>:x <space>* => x;
+      num      ::= <num>:n <digit>:d => [[n * ’10] + [d - ’$0]]
+                 | <digit>:d <space>* => [d - ’$0];
+      priExpr  ::= <var>:x => [[self vars] at: x]
+                 | <num>:n => n
+                 | ’(’ <space>* <expr>:r ’)’ <space>* => r;
+      mulExpr  ::= <mulExpr>:x ’*’ <space>* <priExpr>:y => [x * y]
+                 | <mulExpr>:x ’/’ <space>* <priExpr>:y => [x / y]
+                 | <priExpr>;
+      addExpr  ::= <addExpr>:x ’+’ <space>* <mulExpr>:y => [x + y]
+                 | <addExpr>:x ’-’ <space>* <mulExpr>:y => [x - y]
+                 | <mulExpr>;
+      expr     ::= <var>:x ’=’ <space>* <expr>:r => [[self vars] at: x put: r]
+                 | <addExpr>;
+      rep      ::= <space>* <expr>:r ’\n’ => (println r);
+    }
+
+_____________________________________________________________________
 ## Appendix
 
-Sebastian Falbesoner 2014 Implementing a Global Register Allocator
-for TCC
+`Malloc()` basically wraps both `brk` and `mmap2` syscalls, but it also
+keeps internal information about the memory that has been allocated
+for use in later malloc calls or free calls. how this is implemented
+falls outside the scope of a compiler: Having to move around
+countless copies of the `malloc()` function in each and every
+executable in the operating system is going to be slower than
+Dynamically linking to `malloc()`. Executable `.o` files aren't just
+a bunch of assembly code, there needs to be dynamically linkable 
+functions at execution time even if we do our own linking.
 
-https://www.complang.tuwien.ac.at/Diplomarbeiten/falbesoner14.pdf
-
-## Events
+### Events
 
 Probably should write a library for events, hopefully this can be
 done in a library.
@@ -405,3 +536,71 @@ address in addition to the events.
     . . . go to Catcher.java file see this code . . .
     }
 
+
+    #                                                               #
+    #                                                               #
+    #                                                               #
+
+_____________________________________________________________________
+
+as long as a pointer is not using a pointer to a pointer. `void
+func(int* p, int** pr){p++; (*pr)++;}`
+
+_____________________________________________________________________
+
+overview of how C2 works[@10.5555/1267847.1267848]
+
+Open, extensible composition models[@10.1145/2068776.2068778]
+
+Association-based model of dynamic behaviour[@10.1145/2068776.2068779]
+
+PEG-based transformer provides stages in a compiler[@10.1145/1942793.1942796]
+
+Open, Extensible Object Models[@10.1007/978-3-540-89275-5_1]
+
+OMeta[@10.1145/1297081.1297086]
+
+Virtual processor: dynamic code generation[@10.5555/1267242.1267250]
+
+[Sebastian Falbesoner 2014 Implementing a Global Register Allocator
+for TCC](https://www.complang.tuwien.ac.at/Diplomarbeiten/falbesoner14.pdf)
+
+_____________________________________________________________________
+
+Imperative & Declarative Programming (Programming as Planning,
+Executable Specifications)[@Samimi_video2009]
+
+i'm sure you have seen an imperative as well as declarative
+methodologies to do programming. imperative is how implementations are
+done and declarative is we've seen prolog language you know it's
+meanings they're compact um they're very understandable but we need
+search in order to to execute them so that they're often not
+practical.
+
+part of what you're interested here to save codes as well as to add
+understandability to problems is; is there a way to kind of combine
+both at the same time? Which is not very common today. This is a
+famous quote that i made recently that the natural combination of
+declaritive and imperative is missing. A couple of methodologies that
+we kind of studied in this direction:
+
+basically if you add a a a layer of logic on top of your your your
+languages to support search basically your heuristic search you can do
+imperative programming with a little bit of overhead if you always
+willing to add optimizations so in the in the presence of multiple
+methods if there's a if there's an optimization that always tells you
+based on the state which method is the is a good method to take so you
+always do this check to to find out the different alternatives then
+you have this little bit overhead of checking to do your normal
+imperative but when you do want when you do have the you know um
+leverage to do kind of search you have the option to say well explore
+possibilities and find the best scenario to to do so this is what this
+this project is all about you know allows you to kind of separate the
+optimizations and heuristics from from the actual implementations the
+actions that you see here to satisfy goals.
+
+_____________________________________________________________________
+The need for avoiding complexity is more important  in 
+the context of **DI** than the need for optimization.
+
+## References

@@ -1,12 +1,41 @@
 % !TEX TS-program = xelatex
 % Copyright 2023. This work is licensed under a CC BY NC ND 4.0 license.
 \input{roydefault5.cls}
-\usepackage{multirow} % <=======================================
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{multirow}
 \usepackage{longtable}
 \usepackage{booktabs}
+%$if(csl-refs)$ https://github.com/jgm/pandoc-templates/blob/master/default.latex
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+%$endif$
 
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %\usepackage{blkarray}
 %\usepackage{adjustbox}
 % ...
@@ -61,7 +90,8 @@
 %WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 \begin{document}
 %\begin{multicols}{2}
-% pandoc --from=markdown --to=latex --output=damcc.tex damcc.md
+% pandoc --from=markdown --to=latex --bibliography=paper.bib --output=damcc.tex damcc.md
+% pandoc --citeproc --bibliography=paper.bib --from=markdown --to=latex --output=damcc.tex damcc.md
 \input{damcc.tex}
 %\end{multicols}
 \end{document}
