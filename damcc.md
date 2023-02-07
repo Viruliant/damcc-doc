@@ -202,10 +202,10 @@ Control flow operators? maybe all we need is "`goto`" read this code:
     while (condition) statement
     //the above while-loop is equivalent to:
     begin:
-    if (condition) {
-        statement;
+    if !(condition) goto end;
+        statements;
         goto begin;
-    }
+    end:
 
     do [loop body statement] while ([condition]);
     //the above do-while-loop is equivalent to:
