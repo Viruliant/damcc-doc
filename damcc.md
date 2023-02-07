@@ -49,7 +49,6 @@ you can write 2 functions that do it._
                 rule.action()
                 return startSymbol
         return false
-
     match(tree, pattern) =
         if (pattern.isSymbol()) return reduce(tree, pattern)
         if (tree.first != pattern.first) return false

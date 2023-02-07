@@ -61,7 +61,6 @@ reduce(tree, startSymbol) =
             rule.action()
             return startSymbol
     return false
-
 match(tree, pattern) =
     if (pattern.isSymbol()) return reduce(tree, pattern)
     if (tree.first != pattern.first) return false
