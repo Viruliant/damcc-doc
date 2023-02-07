@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (Web2C 2021/nixos.org) (preloaded format=xelatex 1980.1.1)  7 FEB 2023 11:45
+This is XeTeX, Version 3.141592653-2.6-0.999993 (Web2C 2021/nixos.org) (preloaded format=xelatex 1980.1.1)  7 FEB 2023 12:26
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1671,25 +1671,25 @@ different executables if they use different instruction-
 LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <10> not available
 (Font)              Font shape `TU/lmtt/b/n' tried instead on input line 35.
 LaTeX Font Info:    Font shape `TU/XITSMath-Regular(2)/m/n' will be
-(Font)              scaled to size 10.00107pt on input line 75.
+(Font)              scaled to size 10.00107pt on input line 77.
 LaTeX Font Info:    Font shape `TU/XITSMath-Regular(2)/m/n' will be
-(Font)              scaled to size 7.5008pt on input line 75.
+(Font)              scaled to size 7.5008pt on input line 77.
 LaTeX Font Info:    Font shape `TU/XITSMath-Regular(2)/m/n' will be
-(Font)              scaled to size 6.00064pt on input line 75.
+(Font)              scaled to size 6.00064pt on input line 77.
 LaTeX Font Info:    Font shape `TU/XITSMath-Regular(3)/m/n' will be
-(Font)              scaled to size 9.99893pt on input line 75.
+(Font)              scaled to size 9.99893pt on input line 77.
 LaTeX Font Info:    Font shape `TU/XITSMath-Regular(3)/m/n' will be
-(Font)              scaled to size 7.49919pt on input line 75.
+(Font)              scaled to size 7.49919pt on input line 77.
 LaTeX Font Info:    Font shape `TU/XITSMath-Regular(3)/m/n' will be
-(Font)              scaled to size 5.99936pt on input line 75.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 75.
+(Font)              scaled to size 5.99936pt on input line 77.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 77.
 
 
 (/nix/store/lw99xzbz6hw1mzg1zh9n1wxzpa497s25-texlive-combined-full-2021-final/s
 hare/texmf/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 75.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 77.
 
 
 (/nix/store/lw99xzbz6hw1mzg1zh9n1wxzpa497s25-texlive-combined-full-2021-final/s
@@ -1697,7 +1697,7 @@ hare/texmf/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Trying to load font information for U+esvect on input line 
-75.
+77.
 
 (/nix/store/lw99xzbz6hw1mzg1zh9n1wxzpa497s25-texlive-combined-full-2021-final/s
 hare/texmf/tex/latex/esvect/uesvect.fd
@@ -1705,7 +1705,7 @@ File: uesvect.fd
 )
 
 LaTeX Font Warning: Font shape `U/esvect/m/n' in size <7.5> not available
-(Font)              size <7> substituted on input line 75.
+(Font)              size <7> substituted on input line 77.
 
 [1
 
@@ -1812,13 +1812,13 @@ Overfull \hbox (72.87636pt too wide) in paragraph at lines 635--635
 ____*/class Catcher[] 
  []
 
-
+[10]
 Overfull \hbox (130.62636pt too wide) in paragraph at lines 635--635
 []\TU/lmtt/m/n/10 ////Optional: 2 things to receive events from a class that is
  a member of the current class[] 
  []
 
-[10]
+
 Overfull \hbox (4.86642pt too wide) in paragraph at lines 663--665
 []\TU/XITS(0)/m/n/10 Imperative & Declarative Programming (Programming as Plann
 ing, Executable Spec-
@@ -1844,6 +1844,9 @@ LaTeX Font Warning: Size substitutions with differences
 
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
 Package rerunfilecheck Info: File `damcclayout.out' has not changed.
 (rerunfilecheck)             Checksum: 5785F333FFDBE79649B86ACCDA6D4B9F;1067.
