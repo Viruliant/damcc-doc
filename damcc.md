@@ -105,71 +105,52 @@ preprocessed `C` to `C` or our small subset of it as an Intermediate
 Representation(IR) The goal of using this subset of `C` is that it is
 more easily translatable to machine code.
 
+ * Nested if statements translated into guard clause non-nested if
+statements.
  * files referenced by `#include` will have their functions scanned 
-and added to a table of functions listing the file and the functions
-and types so that when a external function is 
-called the appropriate "`symbol()`" call of the elf file can be made.
- * even though we can replace function calls with gotos, they need to
-be left in to represent where we will leave symbol references for the
-"`.o`" files even executables are formatted this way the `main()`
-function is called.
- * all paramaters to functions that are not passed by reference
-are to be converted to paramaters that are passed by reference, 
-and that variable is never to be referenced, except when it is copied to another 
-location at the begining of the function and that copy is to be used in its place in all of it's occurences.
- * The meaning of all loops translated into gotos
- * nested if statements translated into guard clause non-nested if
-statements
- * arithmetic-assignment-operators (`+=`, `-=`, `*=`, `/=`, `%=`) need to be 
-converted to a combination of the arithmetic operation of the correct
-type and the assignment.
+and added to a table of functions listing the file and the functions 
+and types so that when a external function is called the appropriate 
+"`symbol()`" call of the elf file can be made. If there isn't a 
+function available that accepts the given type abort with error.
+ * **Memory--** all of variables **AND** pointers Each function or
+block `{}` is to have all memory explicitly allocated/deallocated with
+appropriate calls to `malloc() realloc() calloc() aligned_alloc() free()`
+ * **goto --** The meaning of all loops translated into gotos. If an 
+active block is exited using a goto statement, explicitly `free()` 
+memory for any local variables before control is transferred from 
+that block. --[ibm 
+goto](https://www.ibm.com/docs/en/zos/2.1.0?topic=statements-goto- 
+statement)
+ * even though we can replace function calls with gotos, they need to 
+be left in to represent where we will leave symbol references for the 
+"`.o`" files (even executables are formatted this way the `main()` 
+function is called).
+ * all paramaters to functions that are not passed by reference are 
+to be converted to paramaters that are passed by reference, and that 
+variable is never to be referenced, except when it is copied to 
+another location at the begining of the function and that copy is to 
+be used in its place in all of it's occurences.
+ * `sizeof()` tells the number of bytes that type or array occupies,
+and `sizeof()` is known at compile time, and most of the time this
+number is fed into arithmetic functions that can also be calculated
+at compile time; which can allow optimizations here.
+ * arithmetic-assignment-operators (`+=`, `-=`, `*=`, `/=`, `%=`) 
+need to be converted to a combination of the arithmetic operation of 
+the correct type and the assignment.
  * Each arithmetic-operator-function (`+`, `-`, `*`, `/`, `%`), and 
 each unary-operator-function (`++`, `--`), and each 
 bitwise-operator-function (`&`, `|`, `<<`, `>>`, `~`, `^`) and each 
 boolean-logical-operator (`&&`, `||`, `!`) as well as relational 
 operators (`<`, `<=`, `>`, `>=`, `==`, `!=`) must be converted to a 
 function call named after the type of the inputs.
- * `sizeof()` tells the number of bytes that type or array occupies,
-and `sizeof()` is known at compile time, and most of the time this
-number is fed into arithmetic functions that can also be calculated
-at compile time; which can allow optimizations here.
- * no more Arrays, Types, Struct, Union, Enum, or any other
-data-types not manipulatable with assembly; just pointer arithmetic.
- * **Memory--** all of variables **AND** pointers Each function or
-block `{}` is to have all memory explicitly allocated/deallocated with
-appropriate calls to `malloc() realloc() calloc() aligned_alloc() free()`
-
-There is no limit to the depth of the pointer to pointer to pointer to
-pointer type.
-
-**deallocation also happens whenever a goto jumps out of a block,
-including nested blocks**
-
-There may be more caveats I am missing this is a draft document.
-
-`C99` doesn’t support function overloading . . . but we could perhaps 
-add that as a command arg to stage1 by renaming overloaded functions 
-to have the names of parameter types in part of the function name.
-
-_____________________________________________________________________
-
-But wait there's more to go over on memory! Storage and Types
-
-storage classes - auto, static, extern, and register
-only one storage class can be specified
-comes first in declaration
-
-    * storage duration - static or automatic
-    * scope - block or file
-    * linkage - external, internal, or no linkage
-
-auto(by default), static(), extern(says that this variable will be defined somewhere else, likely another file)
-
-type qualifier - const(val can't be changed abort with error if this
-is attempted) and volatile(value may change outside our control)
-
-type specifier - struct, enum, union need to be converted to
-regular types(`uintN_t` `intN_t` `floatN_t`) or their pointers with typedef
+ * translate the `->` operator into pointer arithmetic
+ * get the `...` primitive in `foo(sometype_t var1, ...)` to work
+with `stdarg.h` somehow ???
+ * type and pointer arithmetic for the `->` primitive to not need to
+be parsed.
+ * **Strongly Typed--** force `anytype_t` to be `sometype_t` with:  
+`*(sometype_t*)&(anytype_t-code)`, should enlighten users why the 
+following 2 prints aren't equal.
 
 _"Start at the variable name (or innermost construct if no identifier 
 is present. Look right **without jumping over a right parenthesis**; 
@@ -180,21 +161,69 @@ Continue in this manner until you say the variable type or return
 type."_ --[Terrence 
 Parr](https://parrt.cs.usfca.edu/doc/how-to-read-C-declarations.html)
 
-Force `anytype_t` to be `sometype_t` with: 
-`*(sometype_t*)&(anytype_t code)` Every operation or function to be made 
-strongly typed with the above, should enlighten users why the 
-following 2 prints aren't equal.
-
     float64_t rydb = 123456789543211;// hex code for rydb with typedef
     printf("hex value of \"rydb\" is %"PRIX64"\n", rydb);
     printf("hex value of \"rydb\" is %"PRIX64"\n", *(uint64_t*)&rydb);
 
-If there isn't a function available that accepts the given type abort 
-with error here. **Statically typed** means that types are checked at 
-compile time, **Dynamically typed** means that types are attached to 
-values at run time, `C` is softly typed . .
+ * no more Arrays, Types, Struct, Union, Enum, or any other
+data-types not manipulatable with assembly; just pointer arithmetic.
+
+#### pointers --
+**"address of" operator: "`&`" --**
+returns address in memory of a variable
+
+**"dereference" operator: "`*`" --**
+Grab data of type of the argument at the given memory location
+
+There is no limit to the depth of the pointer to pointer to pointer to
+pointer type.
+
+Do typecasting and pointer arithmetic **WITH THE REQUESTED PADDING** 
+for: structs, arrays, enum, and union etc. and padding: according to 
+`#pragma pack(x)` fed to stage1. Rewrite struct with `#pragma 
+pack(1)` and redeclare `struct` members in order decreasing size, and 
+do padding according to `x`.  sizeof() the type of the data being 
+stored in the array times length of the array. When a data type is 
+naturally aligned, the CPU fetches it in minimum read cycles.
+
+ * the **ternary operator** (`?:`) is to be converted to if statements, and 
+function calls to the appropriate boolean function.
+ * assignment operator `=`
+
+#### Inline functions --
+The instructions of a function have there own place in
+memory and a jump to that section is performed followed by a jump back
+to wherever the function was called from. Short function calls that
+can be "inlined" can take less cpu clocks to run than jumping to some
+other section of memory. **Inline functions** mean the whole code of
+the function is written verbatim whereever it is called without any
+jump instructions. In certain situations some compilers and may
+decide not to honor the "`inline`" primitive.
+
+    // Static Inline function for each possible compare or jump
+    // for the current architecture in assembly
+    static inline int foo(){
+        return 2;
+    }
+
+At each stage of compilation/translation `damcc` data will remain
+in C until there is nothing left but assembly.
 
 _____________________________________________________________________
+
+    #                                                               #
+    #                                                               #
+    #                                                               #
+    #                                                               #
+    #                                                               #
+    #                                                               #
+    #                                                               #
+    #                                                               #
+    #                                                               #
+    #                                                               #
+    #                                                               #
+    #                                                               #
+    #                                                               #
 
 #### Metaprogramming Example translator
 Control flow operators? maybe all we need is "`goto`" read this code:
@@ -281,21 +310,21 @@ Control flow operators? maybe all we need is "`goto`" read this code:
         z = b;
     end:
 
+_____________________________________________________________________
+
 #### _"Clean"_ and convoluted--
 after Stage1 is complete there will be no need to:
 
  * parse the `sizeof()` command
  * parse types of variables
- * parse creation or destruction of any variables -- the `C` code will be requesting
-memory for it's own variables and pointers the appropriate function calls
-(`malloc()` etc.).
+ * parse creation or destruction of any variables -- the `C` code 
+will be requesting memory for it's own variables and pointers the 
+appropriate function calls (`malloc()` etc.).
  * create or manage Arrays, Types, Struct, Union, Enum
  * parse control flow statements switches loops etc.
  * destroy any variables -- the c code should be explicitly calling `free()` on
 any variables that are to cease existance after they fall out of scope
 including global variables at the end of the `main()` scope.
-
-_____________________________________________________________________
 
 _"I came to realize that if I'm not writing a program, I shouldn't
 use a programming language. People confuse programming with coding, 
@@ -309,6 +338,8 @@ trying to learn programming by being taught to code, well they're
 being taught writing by being taught how to type, and that doesn't 
 make much sense."_ --Leslie Lamport https://youtu.be/rkZzg7Vowao
 
+_____________________________________________________________________
+
 ####  "`C`" Compiler (`damcc`) as the DI of the "`C`" language --
 Rarely is a language as well put together as `C`, Mixing `C` and 
 assembly can often be as simple as not translating the assembly parts 
@@ -319,19 +350,17 @@ do exactly what **you** tell it to do; Including the set of all known
 computer *bugs*: memory leaks, stack overflows, disk destruction, or 
 worse.
 
-_____________________________________________________________________
-
 #### Stage 2 "Register allocation" --
-determining which values should be placed into which memory hierarchy
-and at what time during the execution of the program.
-
-The different storage devices on modern computers: hard disk, ram, cpu
-cache, & cpu registers all have different latencies, and `C` programs
-are written as if there are only 2 kinds of memory: main memory and
-disk. The Compiler is responsible for adding logic into the program to
-move data between the different memory hierarchies: memory, cpu-cache,
-and cpu-registers. The compiler is not responsible for the hard disk
-since it is accessed by function calls to the system or kernel.
+determining which values should be placed into which memory hierarchy 
+and at what time during the execution of the program. The different 
+storage devices on modern computers: hard disk, ram, cpu cache, & cpu 
+registers all have different latencies, and `C` programs are written 
+as if there are only 2 kinds of memory: main memory and disk. The 
+Compiler is to uphold this illusion by adding logic into the program 
+to move data between the different memory hierarchies: memory, 
+cpu-cache, and cpu-registers. The compiler is not responsible for the 
+hard disk since it is accessed by function calls to the system or 
+kernel.
 
 _"Register allocation phase of the compiler stands between the
 optimization phase and the final code assembly and emission phase.
@@ -342,21 +371,16 @@ registers. It is the responsibility of the optimization phase to
 eliminate references to storage by keeping data in these registers, as
 much as possible."_ --[@10.1145/800230.806984]
 
-58:57 - 60:54 into [@ClickNodes] video
-overview of how C2 works described in [@10.5555/1267847.1267848]
-
-_"**Outline how The architecture description files, in how in general
-made the compiler suitable for many platforms all at once:** . . .
-There is an architecture file that is used to describe a CPU
-architecture including the set of the kind of instructions and a
-mapping from the sea to ideal nodes to machine equivalents and the
-registers that are allowed and the encoding for the machine code
-encodings for them is sort of the common set of things there's a bunch
-of the things that are in there that are all these fine-grained
-details but the big pieces are:_
-
-_Here's a mapping from idealized nodes
-which is what the eye are mostly runs on to get under code gen to 
+[@ClickNodes] -- _"**Outline how The architecture description files, 
+in how in general made the compiler suitable for many platforms all 
+at once:** . . . There is an architecture file that is used to 
+describe a CPU architecture including the set of the kind of 
+instructions and a mapping from the C2 ideal nodes to machine 
+equivalents and the registers that are allowed and the encoding for 
+the machine code encodings for them is sort of the common set of 
+things there's a bunch of the things that are in there that are all 
+these fine-grained details but the big pieces are: a mapping from 
+idealized nodes which is what the IR mostly runs on to code gen to 
 hardware instructions and the registers that are allowed both on each 
 individual hardware instruction input and overall what are those set 
 of arc registers are allowed in the system and there is a tool which 
@@ -393,48 +417,6 @@ in the "lib/Target" directory. The  ".td" extension target description
 files are usually found in subdirectories, for example
 "lib/Target/X86/X86.td".
 
-
-At each stage of compilation/translation `damcc` data will remain
-in C until there is nothing left but assembly.
-
-#### Inline functions --
-The instructions of a function have there own place in
-memory and a jump to that section is performed followed by a jump back
-to wherever the function was called from. Short function calls that
-can be "inlined" can take less cpu clocks to run than jumping to some
-other section of memory. **Inline functions** mean the whole code of
-the function is written verbatim whereever it is called without any
-jump instructions. In certain situations some compilers and may
-decide not to honor the "`inline`" primitive.
-
-    // Static Inline function for each possible compare or jump
-    // for the current architecture in assembly
-    static inline int foo(){
-        return 2;
-    }
-
-
-#### pointers --
-"address of" operator: "`&`" - returns address in memory of a variable
-"dereference" operator: "`*`" - Grab data of type of the argument at
-the given memory location
-"ffi"-foreign function interface
-"efi"-external function interface
-
-#### advanced Inline operator functions --
-the ternary operator (`?:`) are to be
-converted to if statements, and function calls to the appropriate
-boolean function.
-assignment operator `=`
-
-
-#### goto --
-If an active block is exited using a goto statement, any local
-variables are destroyed when control is transferred from that block.
-You cannot use a goto statement to jump over initializations. --[ibm
-goto](https://www.ibm.com/docs/en/zos/2.1.0?topic=statements-goto-
-statement)
-
 _____________________________________________________________________
 
 #### Executable Linkers are basically just home theater setups-
@@ -444,11 +426,9 @@ https://youtu.be/eQ0KOT_J8Sk?list=PLhy9gU5W1fvUND_5mdpbNVHC1WCIaABbP
 in certain situations with low memory budgets other techniques might
 be used --https://github.com/avrdudes/avr-libc
 
-#### external function interface
-To allow assembly functions in our compiled code to to be called from another
-program, we have tor create an external function interface.
-
-https://stackoverflow.com/questions/13901261/calling-assembly-function-from-c
+`C99` doesn’t support function overloading . . . but we could perhaps 
+add that as a command arg to stage1 by renaming overloaded functions 
+to have the names of parameter types in part of the function name.
 
 _____________________________________________________________________
 
@@ -461,28 +441,29 @@ _____________________________________________________________________
     <p>     production application
     ’x’     matches the character x
 
+_____________________________________________________________________
 
-    meta Calc (vars) {
-      __init__ ::= <empty> => [self vars: [IdentityDictionary new]];
-      space    ::= ’ ’;
-      var      ::= <letter>:x <space>* => x;
-      num      ::= <num>:n <digit>:d => [[n * ’10] + [d - ’$0]]
-                 | <digit>:d <space>* => [d - ’$0];
-      priExpr  ::= <var>:x => [[self vars] at: x]
-                 | <num>:n => n
-                 | ’(’ <space>* <expr>:r ’)’ <space>* => r;
-      mulExpr  ::= <mulExpr>:x ’*’ <space>* <priExpr>:y => [x * y]
-                 | <mulExpr>:x ’/’ <space>* <priExpr>:y => [x / y]
-                 | <priExpr>;
-      addExpr  ::= <addExpr>:x ’+’ <space>* <mulExpr>:y => [x + y]
-                 | <addExpr>:x ’-’ <space>* <mulExpr>:y => [x - y]
-                 | <mulExpr>;
-      expr     ::= <var>:x ’=’ <space>* <expr>:r => [[self vars] at: x put: r]
-                 | <addExpr>;
-      rep      ::= <space>* <expr>:r ’\n’ => (println r);
-    }
+But wait there's more to go over on memory! Storage and Types
+
+storage classes - auto, static, extern, and register
+only one storage class can be specified
+comes first in declaration
+
+    * storage duration - static or automatic
+    * scope - block or file
+    * linkage - external, internal, or no linkage
+
+auto(by default), static(), extern(says that this variable will be defined somewhere else, likely another file)
+
+type qualifier - const(val can't be changed abort with error if this
+is attempted) and volatile(value may change outside our control)
+
+type specifier - struct, enum, union need to be converted to
+regular types(`uintN_t` `intN_t` `floatN_t`) or their pointers with typedef
+
 
 _____________________________________________________________________
+
 ## Appendix
 
 `Malloc()` basically wraps both `brk` and `mmap2` syscalls, but it also
@@ -508,12 +489,14 @@ well, so we're actually going to describe the operations in java, to
 avoid any confusion added from also having to juggle pointers and 
 address in addition to the events.
 
+thrower=publisher, throw=publish, catcher=subscriber, catch=receive
+
     import java.util.*;//import of java.util.event
 
     interface ThrowListener { public void Catch(); } //Declaration event interface type
     // OR import of the interface, OR declared somewhere else in the package
 
-    /*_____________________________________________________________*/class Thrower {
+    /*_______________________________________________*/class Thrower {
     //list of catchers & corresponding function to add/remove them in the list
         List<ThrowListener> listeners = new ArrayList<ThrowListener>();
         public void addThrowListener(ThrowListener toAdd){ listeners.add(toAdd); }
@@ -525,7 +508,7 @@ address in addition to the events.
     . . . go to Thrower.java file see this code . . .
     }
 
-    /*_______________________________________________________________*/class Catcher
+    /*_________________________________________________*/class Catcher
     implements ThrowListener {//implement added to class
     //Set of @Override functions that Catch Events
         @Override public void Catch() {
@@ -539,30 +522,6 @@ address in addition to the events.
     #                                                               #
     #                                                               #
     #                                                               #
-
-_____________________________________________________________________
-
-as long as a pointer is not using a pointer to a pointer. `void
-func(int* p, int** pr){p++; (*pr)++;}`
-
-_____________________________________________________________________
-
-overview of how C2 works[@10.5555/1267847.1267848]
-
-Open, extensible composition models[@10.1145/2068776.2068778]
-
-Association-based model of dynamic behaviour[@10.1145/2068776.2068779]
-
-PEG-based transformer provides stages in a compiler[@10.1145/1942793.1942796]
-
-Open, Extensible Object Models[@10.1007/978-3-540-89275-5_1]
-
-OMeta[@10.1145/1297081.1297086]
-
-Virtual processor: dynamic code generation[@10.5555/1267242.1267250]
-
-[Sebastian Falbesoner 2014 Implementing a Global Register Allocator
-for TCC](https://www.complang.tuwien.ac.at/Diplomarbeiten/falbesoner14.pdf)
 
 _____________________________________________________________________
 
@@ -599,7 +558,29 @@ optimizations and heuristics from from the actual implementations the
 actions that you see here to satisfy goals.
 
 _____________________________________________________________________
+
 The need for avoiding complexity is more important  in 
 the context of **DI** than the need for optimization.
+
+See also:
+
+Open, extensible composition models[@10.1145/2068776.2068778]
+
+Association-based model of dynamic behaviour[@10.1145/2068776.2068779]
+
+PEG-based transformer provides stages in a compiler[@10.1145/1942793.1942796]
+
+Open, Extensible Object Models[@10.1007/978-3-540-89275-5_1]
+
+OMeta[@10.1145/1297081.1297086]
+
+Virtual processor: dynamic code generation[@10.5555/1267242.1267250]
+
+[Sebastian Falbesoner 2014 Implementing a Global Register Allocator
+for TCC](https://www.complang.tuwien.ac.at/Diplomarbeiten/falbesoner14.pdf)
+
+how C2 works described in [@10.5555/1267847.1267848]
+
+_____________________________________________________________________
 
 ## References

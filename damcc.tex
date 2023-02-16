@@ -128,15 +128,32 @@ Intermediate Representation(IR) The goal of using this subset of
 \begin{itemize}
 \tightlist
 \item
+  Nested if statements translated into guard clause non-nested if
+  statements.
+\item
   files referenced by \texttt{\#include} will have their functions
   scanned and added to a table of functions listing the file and the
   functions and types so that when a external function is called the
-  appropriate ``\texttt{symbol()}'' call of the elf file can be made.
+  appropriate ``\texttt{symbol()}'' call of the elf file can be made. If
+  there isn't a function available that accepts the given type abort
+  with error.
+\item
+  \textbf{Memory--} all of variables \textbf{AND} pointers Each function
+  or block \texttt{\{\}} is to have all memory explicitly
+  allocated/deallocated with appropriate calls to
+  \texttt{malloc()\ realloc()\ calloc()\ aligned\_alloc()\ free()}
+\item
+  \textbf{goto --} The meaning of all loops translated into gotos. If an
+  active block is exited using a goto statement, explicitly
+  \texttt{free()} memory for any local variables before control is
+  transferred from that block.
+  --\href{https://www.ibm.com/docs/en/zos/2.1.0?topic=statements-goto-\%20statement}{ibm
+  goto}
 \item
   even though we can replace function calls with gotos, they need to be
   left in to represent where we will leave symbol references for the
-  ``\texttt{.o}'' files even executables are formatted this way the
-  \texttt{main()} function is called.
+  ``\texttt{.o}'' files (even executables are formatted this way the
+  \texttt{main()} function is called).
 \item
   all paramaters to functions that are not passed by reference are to be
   converted to paramaters that are passed by reference, and that
@@ -144,10 +161,10 @@ Intermediate Representation(IR) The goal of using this subset of
   another location at the begining of the function and that copy is to
   be used in its place in all of it's occurences.
 \item
-  The meaning of all loops translated into gotos
-\item
-  nested if statements translated into guard clause non-nested if
-  statements
+  \texttt{sizeof()} tells the number of bytes that type or array
+  occupies, and \texttt{sizeof()} is known at compile time, and most of
+  the time this number is fed into arithmetic functions that can also be
+  calculated at compile time; which can allow optimizations here.
 \item
   arithmetic-assignment-operators (\texttt{+=}, \texttt{-=},
   \texttt{*=}, \texttt{/=}, \texttt{\%=}) need to be converted to a
@@ -166,55 +183,21 @@ Intermediate Representation(IR) The goal of using this subset of
   \texttt{!=}) must be converted to a function call named after the type
   of the inputs.
 \item
-  \texttt{sizeof()} tells the number of bytes that type or array
-  occupies, and \texttt{sizeof()} is known at compile time, and most of
-  the time this number is fed into arithmetic functions that can also be
-  calculated at compile time; which can allow optimizations here.
+  translate the \texttt{-\textgreater{}} operator into pointer
+  arithmetic
 \item
-  no more Arrays, Types, Struct, Union, Enum, or any other data-types
-  not manipulatable with assembly; just pointer arithmetic.
+  get the \texttt{...} primitive in
+  \texttt{foo(sometype\_t\ var1,\ ...)} to work with \texttt{stdarg.h}
+  somehow ???
 \item
-  \textbf{Memory--} all of variables \textbf{AND} pointers Each function
-  or block \texttt{\{\}} is to have all memory explicitly
-  allocated/deallocated with appropriate calls to
-  \texttt{malloc()\ realloc()\ calloc()\ aligned\_alloc()\ free()}
+  type and pointer arithmetic for the \texttt{-\textgreater{}} primitive
+  to not need to be parsed.
+\item
+  \textbf{Strongly Typed--} force \texttt{anytype\_t} to be
+  \texttt{sometype\_t} with:\\
+  \texttt{*(sometype\_t*)\&(anytype\_t-code)}, should enlighten users
+  why the following 2 prints aren't equal.
 \end{itemize}
-
-There is no limit to the depth of the pointer to pointer to pointer to
-pointer type.
-
-\textbf{deallocation also happens whenever a goto jumps out of a block,
-including nested blocks}
-
-There may be more caveats I am missing this is a draft document.
-
-\texttt{C99} doesn't support function overloading . . . but we could
-perhaps add that as a command arg to stage1 by renaming overloaded
-functions to have the names of parameter types in part of the function
-name.
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-But wait there's more to go over on memory! Storage and Types
-
-storage classes - auto, static, extern, and register only one storage
-class can be specified comes first in declaration
-
-\begin{verbatim}
-* storage duration - static or automatic
-* scope - block or file
-* linkage - external, internal, or no linkage
-\end{verbatim}
-
-auto(by default), static(), extern(says that this variable will be
-defined somewhere else, likely another file)
-
-type qualifier - const(val can't be changed abort with error if this is
-attempted) and volatile(value may change outside our control)
-
-type specifier - struct, enum, union need to be converted to regular
-types(\texttt{uintN\_t} \texttt{intN\_t} \texttt{floatN\_t}) or their
-pointers with typedef
 
 \emph{``Start at the variable name (or innermost construct if no
 identifier is present. Look right \textbf{without jumping over a right
@@ -226,23 +209,89 @@ type.''}
 --\href{https://parrt.cs.usfca.edu/doc/how-to-read-C-declarations.html}{Terrence
 Parr}
 
-Force \texttt{anytype\_t} to be \texttt{sometype\_t} with:
-\texttt{*(sometype\_t*)\&(anytype\_t\ code)} Every operation or function
-to be made strongly typed with the above, should enlighten users why the
-following 2 prints aren't equal.
-
 \begin{verbatim}
 float64_t rydb = 123456789543211;// hex code for rydb with typedef
 printf("hex value of \"rydb\" is %"PRIX64"\n", rydb);
 printf("hex value of \"rydb\" is %"PRIX64"\n", *(uint64_t*)&rydb);
 \end{verbatim}
 
-If there isn't a function available that accepts the given type abort
-with error here. \textbf{Statically typed} means that types are checked
-at compile time, \textbf{Dynamically typed} means that types are
-attached to values at run time, \texttt{C} is softly typed . .
+\begin{itemize}
+\tightlist
+\item
+  no more Arrays, Types, Struct, Union, Enum, or any other data-types
+  not manipulatable with assembly; just pointer arithmetic.
+\end{itemize}
+
+\hypertarget{pointers}{%
+\paragraph{pointers --}\label{pointers}}
+
+\textbf{``address of'' operator: ``\texttt{\&}'' --} returns address in
+memory of a variable
+
+\textbf{``dereference'' operator: ``\texttt{*}'' --} Grab data of type
+of the argument at the given memory location
+
+There is no limit to the depth of the pointer to pointer to pointer to
+pointer type.
+
+Do typecasting and pointer arithmetic \textbf{WITH THE REQUESTED
+PADDING} for: structs, arrays, enum, and union etc. and padding:
+according to \texttt{\#pragma\ pack(x)} fed to stage1. Rewrite struct
+with \texttt{\#pragma\ \ pack(1)} and redeclare \texttt{struct} members
+in order decreasing size, and do padding according to \texttt{x}.
+sizeof() the type of the data being stored in the array times length of
+the array. When a data type is naturally aligned, the CPU fetches it in
+minimum read cycles.
+
+\begin{itemize}
+\tightlist
+\item
+  the \textbf{ternary operator} (\texttt{?:}) is to be converted to if
+  statements, and function calls to the appropriate boolean function.
+\item
+  assignment operator \texttt{=}
+\end{itemize}
+
+\hypertarget{inline-functions}{%
+\paragraph{Inline functions --}\label{inline-functions}}
+
+The instructions of a function have there own place in memory and a jump
+to that section is performed followed by a jump back to wherever the
+function was called from. Short function calls that can be ``inlined''
+can take less cpu clocks to run than jumping to some other section of
+memory. \textbf{Inline functions} mean the whole code of the function is
+written verbatim whereever it is called without any jump instructions.
+In certain situations some compilers and may decide not to honor the
+``\texttt{inline}'' primitive.
+
+\begin{verbatim}
+// Static Inline function for each possible compare or jump
+// for the current architecture in assembly
+static inline int foo(){
+    return 2;
+}
+\end{verbatim}
+
+At each stage of compilation/translation \texttt{damcc} data will remain
+in C until there is nothing left but assembly.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{verbatim}
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+#                                                               #
+\end{verbatim}
 
 \hypertarget{metaprogramming-example-translator}{%
 \paragraph{Metaprogramming Example
@@ -335,6 +384,8 @@ alternate:
 end:
 \end{verbatim}
 
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
 \hypertarget{clean-and-convoluted}{%
 \paragraph{\texorpdfstring{\emph{``Clean''} and
 convoluted--}{``Clean'' and convoluted--}}\label{clean-and-convoluted}}
@@ -362,8 +413,6 @@ after Stage1 is complete there will be no need to:
   \texttt{main()} scope.
 \end{itemize}
 
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
 \emph{``I came to realize that if I'm not writing a program, I shouldn't
 use a programming language. People confuse programming with coding,
 coding is to programming what typing is to writing. It's something that
@@ -375,6 +424,8 @@ writing is supposed to convey. If people are trying to learn programming
 by being taught to code, well they're being taught writing by being
 taught how to type, and that doesn't make much sense.''} --Leslie
 Lamport https://youtu.be/rkZzg7Vowao
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 \hypertarget{c-compiler-damcc-as-the-di-of-the-c-language}{%
 \paragraph{\texorpdfstring{``\texttt{C}'' Compiler (\texttt{damcc}) as
@@ -390,19 +441,16 @@ language, in that it will do exactly what \textbf{you} tell it to do;
 Including the set of all known computer \emph{bugs}: memory leaks, stack
 overflows, disk destruction, or worse.
 
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
 \hypertarget{stage-2-register-allocation}{%
 \paragraph{Stage 2 ``Register allocation''
 --}\label{stage-2-register-allocation}}
 
 determining which values should be placed into which memory hierarchy
-and at what time during the execution of the program.
-
-The different storage devices on modern computers: hard disk, ram, cpu
-cache, \& cpu registers all have different latencies, and \texttt{C}
-programs are written as if there are only 2 kinds of memory: main memory
-and disk. The Compiler is responsible for adding logic into the program
+and at what time during the execution of the program. The different
+storage devices on modern computers: hard disk, ram, cpu cache, \& cpu
+registers all have different latencies, and \texttt{C} programs are
+written as if there are only 2 kinds of memory: main memory and disk.
+The Compiler is to uphold this illusion by adding logic into the program
 to move data between the different memory hierarchies: memory,
 cpu-cache, and cpu-registers. The compiler is not responsible for the
 hard disk since it is accessed by function calls to the system or
@@ -417,26 +465,21 @@ responsibility of the optimization phase to eliminate references to
 storage by keeping data in these registers, as much as possible.''}
 --(Chaitin 1982)
 
-58:57 - 60:54 into (Click 2020) video overview of how C2 works described
-in (Paleczny, Vick, and Click 2001)
-
-\emph{``\textbf{Outline how The architecture description files, in how
-in general made the compiler suitable for many platforms all at once:} .
-. . There is an architecture file that is used to describe a CPU
-architecture including the set of the kind of instructions and a mapping
-from the sea to ideal nodes to machine equivalents and the registers
-that are allowed and the encoding for the machine code encodings for
-them is sort of the common set of things there's a bunch of the things
-that are in there that are all these fine-grained details but the big
-pieces are:}
-
-\emph{Here's a mapping from idealized nodes which is what the eye are
-mostly runs on to get under code gen to hardware instructions and the
-registers that are allowed both on each individual hardware instruction
-input and overall what are those set of arc registers are allowed in the
-system and there is a tool which reads this file which is enough funny
-in its own little format and spits out C code that is in compiled in
-with the rest of the system.}
+(Click 2020) -- \emph{``\textbf{Outline how The architecture description
+files, in how in general made the compiler suitable for many platforms
+all at once:} . . . There is an architecture file that is used to
+describe a CPU architecture including the set of the kind of
+instructions and a mapping from the C2 ideal nodes to machine
+equivalents and the registers that are allowed and the encoding for the
+machine code encodings for them is sort of the common set of things
+there's a bunch of the things that are in there that are all these
+fine-grained details but the big pieces are: a mapping from idealized
+nodes which is what the IR mostly runs on to code gen to hardware
+instructions and the registers that are allowed both on each individual
+hardware instruction input and overall what are those set of arc
+registers are allowed in the system and there is a tool which reads this
+file which is enough funny in its own little format and spits out C code
+that is in compiled in with the rest of the system.}
 
 \emph{Builds what's called a burrs pattern matching which does a optimal
 for some definition of optimal mapping of Hardware instructions to ideal
@@ -467,54 +510,6 @@ in the ``lib/Target'' directory. The ``.td'' extension target
 description files are usually found in subdirectories, for example
 ``lib/Target/X86/X86.td''.
 
-At each stage of compilation/translation \texttt{damcc} data will remain
-in C until there is nothing left but assembly.
-
-\hypertarget{inline-functions}{%
-\paragraph{Inline functions --}\label{inline-functions}}
-
-The instructions of a function have there own place in memory and a jump
-to that section is performed followed by a jump back to wherever the
-function was called from. Short function calls that can be ``inlined''
-can take less cpu clocks to run than jumping to some other section of
-memory. \textbf{Inline functions} mean the whole code of the function is
-written verbatim whereever it is called without any jump instructions.
-In certain situations some compilers and may decide not to honor the
-``\texttt{inline}'' primitive.
-
-\begin{verbatim}
-// Static Inline function for each possible compare or jump
-// for the current architecture in assembly
-static inline int foo(){
-    return 2;
-}
-\end{verbatim}
-
-\hypertarget{pointers}{%
-\paragraph{pointers --}\label{pointers}}
-
-``address of'' operator: ``\texttt{\&}'' - returns address in memory of
-a variable ``dereference'' operator: ``\texttt{*}'' - Grab data of type
-of the argument at the given memory location ``ffi''-foreign function
-interface ``efi''-external function interface
-
-\hypertarget{advanced-inline-operator-functions}{%
-\paragraph{advanced Inline operator functions
---}\label{advanced-inline-operator-functions}}
-
-the ternary operator (\texttt{?:}) are to be converted to if statements,
-and function calls to the appropriate boolean function. assignment
-operator \texttt{=}
-
-\hypertarget{goto}{%
-\paragraph{goto --}\label{goto}}
-
-If an active block is exited using a goto statement, any local variables
-are destroyed when control is transferred from that block. You cannot
-use a goto statement to jump over initializations.
---\href{https://www.ibm.com/docs/en/zos/2.1.0?topic=statements-goto-\%20statement}{ibm
-goto}
-
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 \hypertarget{executable-linkers-are-basically-just-home-theater-setups-}{%
@@ -528,14 +523,10 @@ https://youtu.be/eQ0KOT\_J8Sk?list=PLhy9gU5W1fvUND\_5mdpbNVHC1WCIaABbP
 in certain situations with low memory budgets other techniques might be
 used --https://github.com/avrdudes/avr-libc
 
-\hypertarget{external-function-interface}{%
-\paragraph{external function
-interface}\label{external-function-interface}}
-
-To allow assembly functions in our compiled code to to be called from
-another program, we have tor create an external function interface.
-
-https://stackoverflow.com/questions/13901261/calling-assembly-function-from-c
+\texttt{C99} doesn't support function overloading . . . but we could
+perhaps add that as a command arg to stage1 by renaming overloaded
+functions to have the names of parameter types in part of the function
+name.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -547,28 +538,30 @@ e+      one or more repetitions (not essential)
 ∼e      negation
 <p>     production application
 ’x’     matches the character x
-
-
-meta Calc (vars) {
-  __init__ ::= <empty> => [self vars: [IdentityDictionary new]];
-  space    ::= ’ ’;
-  var      ::= <letter>:x <space>* => x;
-  num      ::= <num>:n <digit>:d => [[n * ’10] + [d - ’$0]]
-             | <digit>:d <space>* => [d - ’$0];
-  priExpr  ::= <var>:x => [[self vars] at: x]
-             | <num>:n => n
-             | ’(’ <space>* <expr>:r ’)’ <space>* => r;
-  mulExpr  ::= <mulExpr>:x ’*’ <space>* <priExpr>:y => [x * y]
-             | <mulExpr>:x ’/’ <space>* <priExpr>:y => [x / y]
-             | <priExpr>;
-  addExpr  ::= <addExpr>:x ’+’ <space>* <mulExpr>:y => [x + y]
-             | <addExpr>:x ’-’ <space>* <mulExpr>:y => [x - y]
-             | <mulExpr>;
-  expr     ::= <var>:x ’=’ <space>* <expr>:r => [[self vars] at: x put: r]
-             | <addExpr>;
-  rep      ::= <space>* <expr>:r ’\n’ => (println r);
-}
 \end{verbatim}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+But wait there's more to go over on memory! Storage and Types
+
+storage classes - auto, static, extern, and register only one storage
+class can be specified comes first in declaration
+
+\begin{verbatim}
+* storage duration - static or automatic
+* scope - block or file
+* linkage - external, internal, or no linkage
+\end{verbatim}
+
+auto(by default), static(), extern(says that this variable will be
+defined somewhere else, likely another file)
+
+type qualifier - const(val can't be changed abort with error if this is
+attempted) and volatile(value may change outside our control)
+
+type specifier - struct, enum, union need to be converted to regular
+types(\texttt{uintN\_t} \texttt{intN\_t} \texttt{floatN\_t}) or their
+pointers with typedef
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -599,13 +592,15 @@ actually going to describe the operations in java, to avoid any
 confusion added from also having to juggle pointers and address in
 addition to the events.
 
+thrower=publisher, throw=publish, catcher=subscriber, catch=receive
+
 \begin{verbatim}
 import java.util.*;//import of java.util.event
 
 interface ThrowListener { public void Catch(); } //Declaration event interface type
 // OR import of the interface, OR declared somewhere else in the package
 
-/*_____________________________________________________________*/class Thrower {
+/*_______________________________________________*/class Thrower {
 //list of catchers & corresponding function to add/remove them in the list
     List<ThrowListener> listeners = new ArrayList<ThrowListener>();
     public void addThrowListener(ThrowListener toAdd){ listeners.add(toAdd); }
@@ -617,7 +612,7 @@ interface ThrowListener { public void Catch(); } //Declaration event interface t
 . . . go to Thrower.java file see this code . . .
 }
 
-/*_______________________________________________________________*/class Catcher
+/*_________________________________________________*/class Catcher
 implements ThrowListener {//implement added to class
 //Set of @Override functions that Catch Events
     @Override public void Catch() {
@@ -632,30 +627,6 @@ implements ThrowListener {//implement added to class
 #                                                               #
 #                                                               #
 \end{verbatim}
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-as long as a pointer is not using a pointer to a pointer.
-\texttt{void\ func(int*\ p,\ int**\ pr)\{p++;\ (*pr)++;\}}
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-overview of how C2 works(Paleczny, Vick, and Click 2001)
-
-Open, extensible composition models(Piumarta 2011b)
-
-Association-based model of dynamic behaviour(Piumarta 2011a)
-
-PEG-based transformer provides stages in a compiler(Piumarta 2010)
-
-Open, Extensible Object Models(Piumarta and Warth 2008)
-
-OMeta(Warth and Piumarta 2007)
-
-Virtual processor: dynamic code generation(Piumarta 2004)
-
-\href{https://www.complang.tuwien.ac.at/Diplomarbeiten/falbesoner14.pdf}{Sebastian
-Falbesoner 2014 Implementing a Global Register Allocator for TCC}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -694,6 +665,27 @@ here to satisfy goals.
 
 The need for avoiding complexity is more important in the context of
 \textbf{DI} than the need for optimization.
+
+See also:
+
+Open, extensible composition models(Piumarta 2011b)
+
+Association-based model of dynamic behaviour(Piumarta 2011a)
+
+PEG-based transformer provides stages in a compiler(Piumarta 2010)
+
+Open, Extensible Object Models(Piumarta and Warth 2008)
+
+OMeta(Warth and Piumarta 2007)
+
+Virtual processor: dynamic code generation(Piumarta 2004)
+
+\href{https://www.complang.tuwien.ac.at/Diplomarbeiten/falbesoner14.pdf}{Sebastian
+Falbesoner 2014 Implementing a Global Register Allocator for TCC}
+
+how C2 works described in (Paleczny, Vick, and Click 2001)
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 \hypertarget{references}{%
 \subsection*{References}\label{references}}
