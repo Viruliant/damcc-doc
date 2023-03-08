@@ -53,10 +53,10 @@ Rarely is a language as well put together as \texttt{C}, Mixing
 \texttt{C} and assembly can often be as simple as not translating the
 assembly parts of the \texttt{C} code. A lot of compromises were made to
 do this; \texttt{C} is not so much a language so much as it is basically
-assembly and just as dangerous. \texttt{C} is a notoriously ``Dumb''
-language, in that it will do exactly what \textbf{you} tell it to do;
-Including the set of all known computer \emph{bugs}: memory leaks, stack
-overflows, disk destruction, or worse.
+assembly and just as dangerous. \texttt{C} WILL do exactly what YOU
+\textbf{OR ANYONE ELSE} tells it; Including the set of all known
+computer \emph{bugs}: memory leaks, stack overflows, disk destruction,
+or worse.
 
 \hypertarget{elf-format-relocatable-object-.o-files}{%
 \paragraph{\texorpdfstring{(ELF Format) Relocatable Object
@@ -84,6 +84,12 @@ See (Warth 2009) for what OMeta Is, this section is about how it works.
 those trees pieces of structure within the trees, is itself simple and
 you can write 2 functions that do it.}
 
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\emph{\textbf{Reduce} a particular piece of tree to a quantity: a
+register in the machine, a memory location, a literal in the machine, or
+a \texttt{void} just a statement that returns no value.}
+
 \begin{verbatim}
 reduce(tree, startSymbol) =
     foreach rule in startSymbol.startSets
@@ -91,6 +97,14 @@ reduce(tree, startSymbol) =
             rule.action()
             return startSymbol
     return false
+\end{verbatim}
+
+\emph{\textbf{Match} a particular piece of tree against the pattern in
+the list of rules. These things are recursive so that structuring the
+trees can have sub structure etc. and what falls out at the end is a yes
+or no answer.}
+
+\begin{verbatim}
 match(tree, pattern) =
     if (pattern.isSymbol()) return reduce(tree, pattern)
     if (tree.first != pattern.first) return false
@@ -100,14 +114,7 @@ match(tree, pattern) =
     return true
 \end{verbatim}
 
-\emph{\textbf{Reduce} a particular piece of tree to a quantity: a
-register in the machine, a memory location, a literal in the machine, or
-a \texttt{void} just a statement that returns no value.}
-
-\emph{\textbf{Match} a particular piece of tree against the pattern in
-the list of rules. These things are recursive so that structuring the
-trees can have sub structure etc. and what falls out at the end is a yes
-or no answer.}
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 \emph{It's the inverse of traditional parsing if you like where a normal
 parser takes unstructured free text and creates a structured
@@ -129,12 +136,6 @@ system takes off exponentially because of the simplicity the
 expressiveness that is built into those 2 mutually supportive models
 within it.''}
 
-\begin{verbatim}
-#                                                                #
-#                                                                #
-#                                                                #
-\end{verbatim}
-
 \hypertarget{enumerate-the-nuances-of-c-by-removing-them}{%
 \subsection{\texorpdfstring{``Enumerate the nuances of \texttt{C}'' by
 ``removing
@@ -150,43 +151,12 @@ translatable to machine code; as an Intermediate Representation(IR).
 \begin{itemize}
 \tightlist
 \item
-  Nested if statements translated into guard clause non-nested if
-  statements.
-\item
-  files referenced by \texttt{\#include} will have their functions
-  scanned and added to a table of functions listing the file and the
-  functions and types so that when a external function is called the
-  appropriate ``\texttt{symbol()}'' call of the elf file can be made. If
-  there isn't a function available that accepts the given type abort
-  with error.
-\item
-  \textbf{Memory--} all of variables \textbf{AND} pointers Each function
-  or block \texttt{\{\}} is to have all memory explicitly
-  allocated/deallocated with appropriate calls to
-  \texttt{malloc()\ realloc()\ calloc()\ aligned\_alloc()\ free()}
-\item
-  \textbf{goto --} The meaning of all loops translated into gotos. If an
-  active block is exited using a goto statement, explicitly
-  \texttt{free()} memory for any local variables before control is
-  transferred from that block.
-  --\href{https://www.ibm.com/docs/en/zos/2.1.0?topic=statements-goto-\%20statement}{ibm
-  goto}
-\item
-  even though we can replace function calls with gotos, they need to be
-  left in to represent where we will leave symbol references for the
-  ``\texttt{.o}'' files (even executables are formatted this way the
-  \texttt{main()} function is called).
-\item
-  all paramaters to functions that are not passed by reference are to be
-  converted to paramaters that are passed by reference, and that
-  variable is never to be referenced, except when it is copied to
-  another location at the begining of the function and that copy is to
-  be used in its place in all of it's occurences.
-\item
   \texttt{sizeof()} tells the number of bytes that type or array
   occupies, and \texttt{sizeof()} is known at compile time, and most of
   the time this number is fed into arithmetic functions that can also be
   calculated at compile time; which can allow optimizations here.
+\item
+  assignment operator \texttt{=} will be left alone
 \item
   arithmetic-assignment-operators (\texttt{+=}, \texttt{-=},
   \texttt{*=}, \texttt{/=}, \texttt{\%=}) need to be converted to a
@@ -205,28 +175,132 @@ translatable to machine code; as an Intermediate Representation(IR).
   \texttt{!=}) must be converted to a function call named after the type
   of the inputs.
 \item
-  translate the \texttt{-\textgreater{}} operator into pointer
-  arithmetic
+  the \textbf{ternary operator} (\texttt{?:}) is to be converted to if
+  statements, and function calls to the appropriate boolean function.
+\item
+  Nested if statements translated into guard clause non-nested if
+  statements.
+\item
+  \textbf{goto --} The meaning of all loops translated into gotos. If an
+  active block is exited using a goto statement, explicitly
+  \texttt{free()} memory for any local variables before control is
+  transferred from that block.
+  --\href{https://www.ibm.com/docs/en/zos/2.1.0?topic=statements-goto-\%20statement}{ibm
+  goto}
+\item
+  even though we can replace function calls with gotos, they need to be
+  left in to represent where we will leave symbol references for the
+  ``\texttt{.o}'' files (even executables are formatted this way the
+  \texttt{main()} function is called).
+\item
+  \textbf{Memory--} all of variables \textbf{AND} pointers Each function
+  or block \texttt{\{\}} is to have all memory explicitly
+  allocated/deallocated with appropriate calls to
+  \texttt{malloc()\ realloc()\ calloc()\ aligned\_alloc()\ free()}.
+  Also, all paramaters to functions that are not passed by reference are
+  to be converted to paramaters that are passed by reference, and that
+  variable is never to be referenced, except when it is copied to
+  another location at the begining of the function and that copy is to
+  be used in its place in all of it's occurences.
+\item
+  files referenced by \texttt{\#include} will have their functions
+  scanned and added to a table of functions listing the file and the
+  functions and types so that when a external function is called the
+  appropriate ``\texttt{symbol()}'' call of the elf file can be made. If
+  there isn't a function available that accepts the given type abort
+  with error.
+\end{itemize}
+
+\begin{verbatim}
+#                                                                #
+#                                                                #
+#                                                                #
+\end{verbatim}
+
+\hypertarget{declarations-definitions-and-calls-of-functions}{%
+\subsubsection{Declarations, Definitions, and Calls of
+Functions}\label{declarations-definitions-and-calls-of-functions}}
+
+The order of Declarations, Definitions, and Calls of Functions is
+pertinent, calls to functions that haven't been declared or defined, in
+preceding lines are invalid, also if the declaration is there but the
+definition doesn't appear somehwere later it is also invalid.
+
+\begin{verbatim}
+void testswap(int *px, int *py); // declaration
+
+int main(){
+    int a = 3; int b = 4;
+    printf("a=%i b=%i\n", a, b);
+    testswap(&a, &b); // call
+    printf("a=%i b=%i\n", a, b);
+    return(0);
+}// implicit declaration if called BEFORE defined or declared
+
+void testswap(int *px, int *py){ // definition
+    int temp;
+    temp = *px;
+    *px = *py;
+    *py = temp;
+}// undefined symbol if declared but not defined
+\end{verbatim}
+
+Header (\texttt{.h}) files tell the compiler that things exist when it's
+generating the object (\texttt{.o}) files. If the compiler doesn't know
+specifically about something, it assumes the header was right and leaves
+a ``name'' behind for the linker. --
+https://stackoverflow.com/a/49542618/144020
+
+\begin{itemize}
+\tightlist
 \item
   get the \texttt{...} primitive in
   \texttt{foo(sometype\_t\ var1,\ ...)} to work with \texttt{stdarg.h}
   somehow ???
-\item
-  type and pointer arithmetic for the \texttt{-\textgreater{}} primitive
-  to not need to be parsed.
-\item
-  the \textbf{ternary operator} (\texttt{?:}) is to be converted to if
-  statements, and function calls to the appropriate boolean function.
-\item
-  assignment operator \texttt{=} will be left alone
-\item
-  no more Arrays, Types, Struct, Union, Enum, or any other data-types
-  not manipulatable with assembly; just pointer arithmetic.
 \end{itemize}
 
-\hypertarget{arrays-struct-union-enum-other-data-types}{%
-\subsubsection{Arrays, Struct, Union, Enum, \& other
-data-types}\label{arrays-struct-union-enum-other-data-types}}
+\hypertarget{inline-functions}{%
+\paragraph{Inline functions --}\label{inline-functions}}
+
+The instructions of a function have there own place in memory and a jump
+to that section is performed followed by a jump back to wherever the
+function was called from. Short function calls that can be ``inlined''
+can take less cpu clocks to run than jumping to some other section of
+memory. \textbf{Inline functions} mean the whole code of the function is
+written verbatim whereever it is called without any jump instructions.
+In certain situations some compilers and may decide not to honor the
+``\texttt{inline}'' primitive.
+
+\begin{verbatim}
+static inline uint32_t addu32andu32(uint32_t *px, uint32_t *py) {
+    uint32_t result;
+    __asm__ (
+        "movl (%1), %%eax\n\t"  // Load value address px into EAX
+        "addl (%2), %%eax\n\t"  // Add value address py to EAX
+        "movl %%eax, %0\n\t"    // Store result in result variable
+        : "=r" (result)         // Output operand (result) in a register
+        : "r" (px), "r" (py)    // Input operands (px and py) in registers
+        : "%eax"                // Clobbered register (EAX is used)
+    );
+    return result;
+}
+\end{verbatim}
+
+\hypertarget{pointer-arithmetic-for-arrays-struct-union-enum}{%
+\subsubsection{Pointer arithmetic for Arrays, Struct, Union,
+Enum}\label{pointer-arithmetic-for-arrays-struct-union-enum}}
+
+\begin{itemize}
+\tightlist
+\item
+  all struct declarations will remain, but it pragma() calls aren't
+  already explicitly used they are to be added here. There will be no
+  ambiguity.
+\item
+  All operations will use inline functions with pointer arithmetic for
+  the \texttt{-\textgreater{}} primitive to not need to be parsed, as
+  well as array logic.
+\end{itemize}
 
 \hypertarget{pointers}{%
 \paragraph{pointers --}\label{pointers}}
@@ -269,72 +343,6 @@ in order decreasing size, and do padding according to \texttt{x}.
 sizeof() the type of the data being stored in the array times length of
 the array. When a data type is naturally aligned, the CPU fetches it in
 minimum read cycles.
-
-\hypertarget{inline-functions}{%
-\paragraph{Inline functions --}\label{inline-functions}}
-
-The instructions of a function have there own place in memory and a jump
-to that section is performed followed by a jump back to wherever the
-function was called from. Short function calls that can be ``inlined''
-can take less cpu clocks to run than jumping to some other section of
-memory. \textbf{Inline functions} mean the whole code of the function is
-written verbatim whereever it is called without any jump instructions.
-In certain situations some compilers and may decide not to honor the
-``\texttt{inline}'' primitive.
-
-\begin{verbatim}
-static inline uint32_t addu32andu32(uint32_t *px, uint32_t *py) {
-    uint32_t result;
-    __asm__ (
-        "movl (%1), %%eax\n\t"  // Load value address px into EAX
-        "addl (%2), %%eax\n\t"  // Add value address py to EAX
-        "movl %%eax, %0\n\t"    // Store result in result variable
-        : "=r" (result)         // Output operand (result) in a register
-        : "r" (px), "r" (py)    // Input operands (px and py) in registers
-        : "%eax"                // Clobbered register (EAX is used)
-    );
-    return result;
-}
-\end{verbatim}
-
-At each stage of compilation/translation \texttt{damcc} data will remain
-in C until there is nothing left but assembly.
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-\hypertarget{declarations-definitions-and-calls-of-functions}{%
-\subsubsection{Declarations, Definitions, and Calls of
-Functions}\label{declarations-definitions-and-calls-of-functions}}
-
-The order of Declarations, Definitions, and Calls of Functions is
-pertinent, calls to functions that haven't been declared or defined, in
-preceding lines are invalid, also if the declaration is there but the
-definition doesn't appear somehwere later it is also invalid.
-
-\begin{verbatim}
-void testswap(int *px, int *py); // declaration
-
-int main(){
-    int a = 3; int b = 4;
-    printf("a=%i b=%i\n", a, b);
-    testswap(&a, &b); // call
-    printf("a=%i b=%i\n", a, b);
-    return(0);
-}// implicit declaration if called BEFORE defined or declared
-
-void testswap(int *px, int *py){ // definition
-    int temp;
-    temp = *px;
-    *px = *py;
-    *py = temp;
-}// undefined symbol if declared but not defined
-\end{verbatim}
-
-Header (\texttt{.h}) files tell the compiler that things exist when it's
-generating the object (\texttt{.o}) files. If the compiler doesn't know
-specifically about something, it assumes the header was right and leaves
-a ``name'' behind for the linker. --
-https://stackoverflow.com/a/49542618/144020
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 

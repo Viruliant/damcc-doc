@@ -4,7 +4,7 @@
 **[damcclayout.pdf](damcclayout.pdf)** -- This Documentation on the compiler
 
 **The Compiler https://github.com/Viruliant/damcc ** --
-is in a released under an MIT License
+is released under an Apache 2.0 License
 
 # License
 Copyright 2023. This work is licensed under a

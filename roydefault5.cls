@@ -3,13 +3,20 @@
 % !TEX encoding = UTF-8 Unicode
 % \ProvidesClass{classname}[2017/02/27 notes]
 \documentclass[10pt]{article}%__________________________________________________________________Page geometry
+
+% (2^0)×(((1/(2^0.5))^0.5)/(2^2)) ≈ 0.2102241 = 210.22mm
+% (2^0.5)×(((1/(2^0.5))^0.5)/(2^3))≈ 0.148650 = 148.65mm
+
 % \usepackage[letterpaper,margin=0.6in,marginratio=3:5,twoside]{geometry}
 
 %\usepackage[a5paper,margin=9mm,marginratio=1:1,twoside,headsep=0mm,landscape,%A5 148.5 x 210 mm
 %\usepackage[a5paper,margin=15mm,marginratio=1:1,twoside,headsep=0mm,landscape,%A5 148.5 x 210 mm
 %\usepackage[a5paper,margin=13mm,marginratio=1:1,twoside,headsep=0mm,landscape,%A5 148.5 x 210 mm
 %\usepackage[paperwidth=176mm, paperheight=250mm,margin=13mm,marginratio=1:1,twoside,headsep=0mm,%b6= 176 x 250 mm
-\usepackage[a5paper,margin=13mm,marginratio=1:1,twoside,headsep=0mm,%A5 148.5 x 210 mm
+%\usepackage[a5paper,margin=13mm,marginratio=1:1,twoside,headsep=0mm,%A5 148.5 x 210 mm
+\usepackage[paperwidth=148.65mm, paperheight=210.22mm,margin=14mm,marginratio=1:1,twoside,headsep=0mm,%A5 148.5 x 210 mm
+% (2^0)×(((1/(2^0.5))^0.5)/(2^2)) ≈ 0.2102241 = 210.22mm
+% (2^0.5)×(((1/(2^0.5))^0.5)/(2^3))≈ 0.148650 = 148.65mm
 %\usepackage[a4paper,margin=13mm,marginratio=1:1,twoside,headsep=0mm,
 includehead,% See below for an explanation
 %includefoot

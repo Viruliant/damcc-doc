@@ -36,14 +36,13 @@ linking) _"It is better to have 100 functions operate on one data
 structure than 10 functions on 10 data structures."_ --Alan Perlis
 
 ####  "`C`" Compiler (`damcc`) as the DI of the "`C`" language --
-Rarely is a language as well put together as `C`, Mixing `C` and
-assembly can often be as simple as not translating the assembly parts
-of the `C` code. A lot of compromises were made to do this; `C` is
-not so much a language so much as it is basically assembly and just
-as dangerous. `C` is a notoriously "Dumb" language, in that it will
-do exactly what **you** tell it to do; Including the set of all known
-computer *bugs*: memory leaks, stack overflows, disk destruction, or
-worse.
+Rarely is a language as well put together as `C`, Mixing `C` and 
+assembly can often be as simple as not translating the assembly parts 
+of the `C` code. A lot of compromises were made to do this; `C` is 
+not so much a language so much as it is basically assembly and just 
+as dangerous. `C` WILL do exactly what YOU **OR ANYONE ELSE** tells 
+it; Including the set of all known computer *bugs*: memory 
+leaks, stack overflows, disk destruction, or worse.
 
 #### (ELF Format) Relocatable Object "`.o`" Files --
 Relocatable object files are files that are in the "elf" executable
@@ -65,12 +64,24 @@ it works.
 those trees pieces of structure within the trees, is itself simple and
 you can write 2 functions that do it._
 
+______________________________________________________________________
+
+_**Reduce** a particular piece of tree to a quantity: a register in
+the machine, a memory location, a literal in the machine, or a `void`
+just a statement that returns no value._
+
     reduce(tree, startSymbol) =
         foreach rule in startSymbol.startSets
             if match(tree, rule.pattern)
                 rule.action()
                 return startSymbol
         return false
+
+_**Match** a particular piece of tree against the pattern in the list
+of rules. These things are recursive so that structuring the trees can
+have sub structure etc. and what falls out at the end is a yes or no
+answer._
+
     match(tree, pattern) =
         if (pattern.isSymbol()) return reduce(tree, pattern)
         if (tree.first != pattern.first) return false
@@ -79,14 +90,7 @@ you can write 2 functions that do it._
                 return false
         return true
 
-_**Reduce** a particular piece of tree to a quantity: a register in
-the machine, a memory location, a literal in the machine, or a `void`
-just a statement that returns no value._
-
-_**Match** a particular piece of tree against the pattern in the list
-of rules. These things are recursive so that structuring the trees can
-have sub structure etc. and what falls out at the end is a yes or no
-answer._
+______________________________________________________________________
 
 _It's the inverse of traditional parsing if you like where a normal
 parser takes unstructured free text and creates a structured
@@ -108,10 +112,6 @@ point on the whole system takes off exponentially because of the
 simplicity the expressiveness that is built into those 2 mutually
 supportive models within it."_
 
-    #                                                                #
-    #                                                                #
-    #                                                                #
-
 
 ## "Enumerate the nuances of `C`" by "removing them"
 
@@ -120,16 +120,24 @@ Define what the `C` language is using "Ometa" to convert from
 preprocessed `C` to a small subset of it, thats is more easily
 translatable to machine code; as an Intermediate Representation(IR).
 
+ * `sizeof()` tells the number of bytes that type or array occupies,
+and `sizeof()` is known at compile time, and most of the time this
+number is fed into arithmetic functions that can also be calculated
+at compile time; which can allow optimizations here.
+ * assignment operator `=` will be left alone
+ * arithmetic-assignment-operators (`+=`, `-=`, `*=`, `/=`, `%=`) 
+need to be converted to a combination of the arithmetic operation of 
+the correct type and the assignment.
+ * Each arithmetic-operator-function (`+`, `-`, `*`, `/`, `%`), and 
+each unary-operator-function (`++`, `--`), and each 
+bitwise-operator-function (`&`, `|`, `<<`, `>>`, `~`, `^`) and each 
+boolean-logical-operator (`&&`, `||`, `!`) as well as relational 
+operators (`<`, `<=`, `>`, `>=`, `==`, `!=`) must be converted to a 
+function call named after the type of the inputs.
+ * the **ternary operator** (`?:`) is to be converted to if statements, and
+function calls to the appropriate boolean function.
  * Nested if statements translated into guard clause non-nested if
 statements.
- * files referenced by `#include` will have their functions scanned 
-and added to a table of functions listing the file and the functions 
-and types so that when a external function is called the appropriate 
-"`symbol()`" call of the elf file can be made. If there isn't a 
-function available that accepts the given type abort with error.
- * **Memory--** all of variables **AND** pointers Each function or
-block `{}` is to have all memory explicitly allocated/deallocated with
-appropriate calls to `malloc() realloc() calloc() aligned_alloc() free()`
  * **goto --** The meaning of all loops translated into gotos. If an 
 active block is exited using a goto statement, explicitly `free()` 
 memory for any local variables before control is transferred from 
@@ -140,36 +148,90 @@ statement)
 be left in to represent where we will leave symbol references for the 
 "`.o`" files (even executables are formatted this way the `main()` 
 function is called).
- * all paramaters to functions that are not passed by reference are 
+ * **Memory--** all of variables **AND** pointers Each function or
+block `{}` is to have all memory explicitly allocated/deallocated with
+appropriate calls to `malloc() realloc() calloc() aligned_alloc() free()`.
+Also, all paramaters to functions that are not passed by reference are 
 to be converted to paramaters that are passed by reference, and that 
 variable is never to be referenced, except when it is copied to 
 another location at the begining of the function and that copy is to 
 be used in its place in all of it's occurences.
- * `sizeof()` tells the number of bytes that type or array occupies,
-and `sizeof()` is known at compile time, and most of the time this
-number is fed into arithmetic functions that can also be calculated
-at compile time; which can allow optimizations here.
- * arithmetic-assignment-operators (`+=`, `-=`, `*=`, `/=`, `%=`) 
-need to be converted to a combination of the arithmetic operation of 
-the correct type and the assignment.
- * Each arithmetic-operator-function (`+`, `-`, `*`, `/`, `%`), and 
-each unary-operator-function (`++`, `--`), and each 
-bitwise-operator-function (`&`, `|`, `<<`, `>>`, `~`, `^`) and each 
-boolean-logical-operator (`&&`, `||`, `!`) as well as relational 
-operators (`<`, `<=`, `>`, `>=`, `==`, `!=`) must be converted to a 
-function call named after the type of the inputs.
- * translate the `->` operator into pointer arithmetic
+ * files referenced by `#include` will have their functions scanned 
+and added to a table of functions listing the file and the functions 
+and types so that when a external function is called the appropriate 
+"`symbol()`" call of the elf file can be made. If there isn't a 
+function available that accepts the given type abort with error.
+
+```
+#                                                                #
+#                                                                #
+#                                                                #
+```
+
+### Declarations, Definitions, and Calls of Functions
+
+The order of Declarations, Definitions, and Calls of Functions is
+pertinent, calls to functions that haven't been declared or defined,
+in preceding lines are invalid, also if the declaration is there
+but the definition doesn't appear somehwere later it is also invalid.
+
+    void testswap(int *px, int *py); // declaration
+
+    int main(){
+        int a = 3; int b = 4;
+        printf("a=%i b=%i\n", a, b);
+        testswap(&a, &b); // call
+        printf("a=%i b=%i\n", a, b);
+        return(0);
+    }// implicit declaration if called BEFORE defined or declared
+
+    void testswap(int *px, int *py){ // definition
+        int temp;
+        temp = *px;
+        *px = *py;
+        *py = temp;
+    }// undefined symbol if declared but not defined
+
+Header (`.h`) files tell the compiler that things exist when it's
+generating the object (`.o`) files. If the compiler doesn't know
+specifically about something, it assumes the header was right and
+leaves a "name" behind for the linker.
+-- https://stackoverflow.com/a/49542618/144020
+
  * get the `...` primitive in `foo(sometype_t var1, ...)` to work
 with `stdarg.h` somehow ???
- * type and pointer arithmetic for the `->` primitive to not need to
-be parsed.
- * the **ternary operator** (`?:`) is to be converted to if statements, and
-function calls to the appropriate boolean function.
- * assignment operator `=` will be left alone
- * no more Arrays, Types, Struct, Union, Enum, or any other
-data-types not manipulatable with assembly; just pointer arithmetic.
 
-###  Arrays, Struct, Union, Enum, & other data-types
+#### Inline functions --
+The instructions of a function have there own place in memory and a 
+jump to that section is performed followed by a jump back to wherever 
+the function was called from. Short function calls that can be 
+"inlined" can take less cpu clocks to run than jumping to some other 
+section of memory. **Inline functions** mean the whole code of the 
+function is written verbatim whereever it is called without any jump 
+instructions. In certain situations some compilers and may decide not 
+to honor the "`inline`" primitive.
+
+    static inline uint32_t addu32andu32(uint32_t *px, uint32_t *py) {
+        uint32_t result;
+        __asm__ (
+            "movl (%1), %%eax\n\t"  // Load value address px into EAX
+            "addl (%2), %%eax\n\t"  // Add value address py to EAX
+            "movl %%eax, %0\n\t"    // Store result in result variable
+            : "=r" (result)         // Output operand (result) in a register
+            : "r" (px), "r" (py)    // Input operands (px and py) in registers
+            : "%eax"                // Clobbered register (EAX is used)
+        );
+        return result;
+    }
+
+### Pointer arithmetic for Arrays, Struct, Union, Enum
+
+ * all struct declarations will remain, but it pragma() calls aren't 
+already explicitly used they are to be added here. There will be no 
+ambiguity.
+ * All operations will use inline functions with pointer arithmetic
+for the `->` primitive to not need to be parsed, as well as array
+logic.
 
 #### pointers --
 The **"address of" operator (`&`)** returns the address of an object.
@@ -206,63 +268,6 @@ do padding according to `x`.  sizeof() the type of the data being
 stored in the array times length of the array. When a data type is 
 naturally aligned, the CPU fetches it in minimum read cycles.
 
-#### Inline functions --
-The instructions of a function have there own place in
-memory and a jump to that section is performed followed by a jump back
-to wherever the function was called from. Short function calls that
-can be "inlined" can take less cpu clocks to run than jumping to some
-other section of memory. **Inline functions** mean the whole code of
-the function is written verbatim whereever it is called without any
-jump instructions. In certain situations some compilers and may
-decide not to honor the "`inline`" primitive.
-
-    static inline uint32_t addu32andu32(uint32_t *px, uint32_t *py) {
-        uint32_t result;
-        __asm__ (
-            "movl (%1), %%eax\n\t"  // Load value address px into EAX
-            "addl (%2), %%eax\n\t"  // Add value address py to EAX
-            "movl %%eax, %0\n\t"    // Store result in result variable
-            : "=r" (result)         // Output operand (result) in a register
-            : "r" (px), "r" (py)    // Input operands (px and py) in registers
-            : "%eax"                // Clobbered register (EAX is used)
-        );
-        return result;
-    }
-
-At each stage of compilation/translation `damcc` data will remain
-in C until there is nothing left but assembly.
-
-______________________________________________________________________
-
-### Declarations, Definitions, and Calls of Functions
-
-The order of Declarations, Definitions, and Calls of Functions is
-pertinent, calls to functions that haven't been declared or defined,
-in preceding lines are invalid, also if the declaration is there
-but the definition doesn't appear somehwere later it is also invalid.
-
-    void testswap(int *px, int *py); // declaration
-
-    int main(){
-        int a = 3; int b = 4;
-        printf("a=%i b=%i\n", a, b);
-        testswap(&a, &b); // call
-        printf("a=%i b=%i\n", a, b);
-        return(0);
-    }// implicit declaration if called BEFORE defined or declared
-
-    void testswap(int *px, int *py){ // definition
-        int temp;
-        temp = *px;
-        *px = *py;
-        *py = temp;
-    }// undefined symbol if declared but not defined
-
-Header (`.h`) files tell the compiler that things exist when it's
-generating the object (`.o`) files. If the compiler doesn't know
-specifically about something, it assumes the header was right and
-leaves a "name" behind for the linker.
--- https://stackoverflow.com/a/49542618/144020
 
 ______________________________________________________________________
 
